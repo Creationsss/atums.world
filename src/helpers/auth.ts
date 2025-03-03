@@ -24,7 +24,7 @@ export async function authByToken(
 
 	try {
 		const result: UserSession[] =
-			await reservation`SELECT id, username, email, roles avatar, timezone, authorization_token FROM users WHERE authorization_token = ${authorizationToken};`;
+			await reservation`SELECT id, username, email, roles, avatar, timezone, authorization_token FROM users WHERE authorization_token = ${authorizationToken};`;
 
 		if (result.length === 0) return null;
 

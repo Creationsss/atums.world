@@ -1,0 +1,92 @@
+import { type ReservedSQL, sql } from "bun";
+
+import { logger } from "@/helpers/logger";
+
+const routeDef: RouteDef = {
+	method: "DELETE",
+	accepts: "*/*",
+	returns: "application/json",
+};
+
+async function handler(request: ExtendedRequest): Promise<Response> {
+	if (!request.session) {
+		return Response.json(
+			{
+				success: false,
+				code: 403,
+				error: "Unauthorized",
+			},
+			{ status: 403 },
+		);
+	}
+
+	const isAdmin: boolean = request.session.roles.includes("admin");
+	const { invite } = request.params as { invite: string };
+
+	if (!invite) {
+		return Response.json(
+			{
+				success: false,
+				code: 400,
+				error: "Expected invite",
+			},
+			{ status: 400 },
+		);
+	}
+
+	const reservation: ReservedSQL = await sql.reserve();
+	let inviteData: Invite | null = null;
+
+	try {
+		const result: Invite[] =
+			await reservation`SELECT * FROM invites WHERE id = ${invite};`;
+
+		if (result.length === 0) {
+			return Response.json(
+				{
+					success: false,
+					code: 400,
+					error: "Invalid invite",
+				},
+				{ status: 400 },
+			);
+		}
+
+		inviteData = result[0];
+
+		if (!isAdmin && inviteData.created_by !== request.session.id) {
+			return Response.json(
+				{
+					success: false,
+					code: 403,
+					error: "Unauthorized",
+				},
+				{ status: 403 },
+			);
+		}
+
+		await reservation`DELETE FROM invites WHERE id = ${inviteData.id};`;
+	} catch (error) {
+		logger.error(["Could not get the invite:", error as Error]);
+
+		return Response.json(
+			{
+				success: false,
+				code: 500,
+				error: "Internal server error",
+			},
+			{ status: 500 },
+		);
+	}
+
+	return Response.json(
+		{
+			success: true,
+			code: 200,
+			message: "Invite deleted",
+		},
+		{ status: 200 },
+	);
+}
+
+export { handler, routeDef };

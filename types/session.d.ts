@@ -27,3 +27,13 @@ type User = {
 	created_at: Date;
 	last_seen: Date;
 };
+
+type Invite = {
+	id: UUID;
+	created_by: UUID;
+	created_at: Date;
+	expiration: Date | null;
+	uses: number;
+	max_uses: number;
+	role: string;
+};

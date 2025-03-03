@@ -6,7 +6,6 @@ import {
 	isValidUsername,
 } from "@config/sql/users";
 import { password as bunPassword, type ReservedSQL, sql } from "bun";
-import type { UUID } from "crypto";
 
 import { logger } from "@/helpers/logger";
 import { sessionManager } from "@/helpers/sessions";
@@ -56,14 +55,14 @@ async function handler(
 
 	const reservation: ReservedSQL = await sql.reserve();
 	let firstUser: boolean = false;
-	let invitedBy: UUID | null = null;
+	let inviteData: Invite | null = null;
 	let roles: string[] = [];
 
 	try {
 		const registrationEnabled: boolean =
-			(await getSetting("registrationEnabled", reservation)) === "true";
+			(await getSetting("enable_registration", reservation)) === "true";
 		const invitationsEnabled: boolean =
-			(await getSetting("invitationsEnabled", reservation)) === "true";
+			(await getSetting("enable_invitations", reservation)) === "true";
 
 		firstUser =
 			Number(
@@ -87,23 +86,30 @@ async function handler(
 		}
 
 		roles.push("user");
-		if (firstUser) {
-			roles.push("admin");
+		if (firstUser) roles.push("admin");
+
+		const result: { usernameExists: boolean; emailExists: boolean }[] =
+			await reservation`
+				SELECT
+				EXISTS(SELECT 1 FROM users WHERE LOWER(username) = LOWER(${username})) AS "usernameExists",
+				EXISTS(SELECT 1 FROM users WHERE LOWER(email) = LOWER(${email})) AS "emailExists";
+			`;
+
+		const { usernameExists, emailExists } = result[0] || {};
+
+		if (usernameExists || emailExists) {
+			errors.push("Username or email already exists");
 		}
 
-		const { usernameExists, emailExists } = await reservation`
-			SELECT
-				EXISTS(SELECT 1 FROM users WHERE LOWER(username) = LOWER(${username})) AS usernameExists,
-				EXISTS(SELECT 1 FROM users WHERE LOWER(email) = LOWER(${email})) AS emailExists;
-		`;
-
-		if (usernameExists) errors.push("Username already exists");
-		if (emailExists) errors.push("Email already exists");
 		if (invite) {
-			invitedBy = (
-				await reservation`SELECT user_id FROM invites WHERE invite = ${invite};`
-			)[0]?.id;
-			if (!invitedBy) errors.push("Invalid invite code");
+			const result: Invite[] =
+				await reservation`SELECT * FROM invites WHERE id = ${invite};`;
+
+			if (!result || result.length === 0) {
+				errors.push("Invalid invite");
+			}
+
+			inviteData = result[0];
 		}
 	} catch (error) {
 		errors.push("An error occurred while checking for existing users");
@@ -129,13 +135,25 @@ async function handler(
 		(await getSetting("default_timezone", reservation)) || "UTC";
 
 	try {
-		user = (
-			await reservation`
+		const result: User[] = await reservation`
 				INSERT INTO users (username, email, password, invited_by, roles, timezone)
-				VALUES (${username}, ${email}, ${hashedPassword}, ${invitedBy}, ARRAY[${roles.join(",")}]::TEXT[], ${defaultTimezone})
+				VALUES (${username}, ${email}, ${hashedPassword}, ${inviteData?.created_by}, ARRAY[${roles.join(",")}]::TEXT[], ${defaultTimezone})
 				RETURNING *;
-			`
-		)[0];
+			`;
+
+		if (result.length === 0) {
+			logger.error("User was not created");
+			return Response.json(
+				{
+					success: false,
+					code: 500,
+					error: "An error occurred with the user registration",
+				},
+				{ status: 500 },
+			);
+		}
+
+		user = result[0];
 
 		if (!user) {
 			logger.error("User was not created");
@@ -149,8 +167,17 @@ async function handler(
 			);
 		}
 
-		if (invitedBy) {
-			await reservation`DELETE FROM invites WHERE invite = ${invite};`;
+		if (invite) {
+			const maxUses: number = Number(inviteData?.max_uses) || 1;
+			const uses: number = Number(inviteData?.uses) || 0;
+
+			if (uses + 1 >= maxUses) {
+				await reservation`DELETE FROM invites WHERE id = ${inviteData?.id};`;
+			} else {
+				await reservation`UPDATE invites SET uses = ${uses + 1} WHERE id = ${inviteData?.id};`;
+			}
+
+			if (inviteData?.role) roles.push(inviteData.role);
 		}
 	} catch (error) {
 		logger.error([
