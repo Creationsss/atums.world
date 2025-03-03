@@ -171,8 +171,8 @@ class ServerHandler {
 						request.query = query;
 
 						request.session =
-							(await sessionManager.getSession(request)) ||
-							(await authByToken(request));
+							(await authByToken(request)) ||
+							(await sessionManager.getSession(request));
 
 						response = await routeModule.handler(
 							request,
