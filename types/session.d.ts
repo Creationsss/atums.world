@@ -21,7 +21,7 @@ type User = {
 	email_verified: boolean;
 	password: string;
 	avatar: boolean;
-	roles: string[];
+	roles: string;
 	timezone: string;
 	invited_by: UUID;
 	created_at: Date;

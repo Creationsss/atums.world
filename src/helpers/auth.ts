@@ -23,8 +23,8 @@ export async function authByToken(
 	if (!authorizationToken || !isUUID(authorizationToken)) return null;
 
 	try {
-		const result: UserSession[] =
-			await reservation`SELECT id, username, email, roles, avatar, timezone, authorization_token FROM users WHERE authorization_token = ${authorizationToken};`;
+		const result: User[] =
+			await reservation`SELECT * FROM users WHERE authorization_token = ${authorizationToken};`;
 
 		if (result.length === 0) return null;
 
@@ -33,7 +33,7 @@ export async function authByToken(
 			username: result[0].username,
 			email: result[0].email,
 			email_verified: result[0].email_verified,
-			roles: result[0].roles,
+			roles: result[0].roles[0].split(","),
 			avatar: result[0].avatar,
 			timezone: result[0].timezone,
 			authorization_token: result[0].authorization_token,

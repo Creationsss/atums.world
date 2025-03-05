@@ -1,3 +1,5 @@
+import { resolve } from "path";
+
 export const environment: Environment = {
 	port: parseInt(process.env.PORT || "8080", 10),
 	host: process.env.HOST || "0.0.0.0",
@@ -24,4 +26,12 @@ export const jwt: {
 } = {
 	secret: process.env.JWT_SECRET || "",
 	expiresIn: process.env.JWT_EXPIRES || "1d",
+};
+
+export const dataType: { type: string; path: string | undefined } = {
+	type: process.env.DATASOURCE_TYPE || "local",
+	path:
+		process.env.DATASOURCE_TYPE === "local"
+			? resolve(process.env.DATASOURCE_LOCAL_DIRECTORY || "./uploads")
+			: undefined,
 };

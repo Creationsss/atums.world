@@ -1,3 +1,4 @@
+import { isValidInvite } from "@config/sql/users";
 import { type ReservedSQL, sql } from "bun";
 
 import { logger } from "@/helpers/logger";
@@ -29,6 +30,19 @@ async function handler(request: ExtendedRequest): Promise<Response> {
 				success: false,
 				code: 400,
 				error: "Expected invite",
+			},
+			{ status: 400 },
+		);
+	}
+
+	const { valid, error } = isValidInvite(invite);
+
+	if (!valid && error) {
+		return Response.json(
+			{
+				success: false,
+				code: 400,
+				error: error,
 			},
 			{ status: 400 },
 		);

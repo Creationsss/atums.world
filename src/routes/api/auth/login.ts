@@ -141,7 +141,7 @@ async function handler(
 			username: user.username,
 			email: user.email,
 			email_verified: user.email_verified,
-			roles: user.roles,
+			roles: user.roles[0].split(","),
 			avatar: user.avatar,
 			timezone: user.timezone,
 			authorization_token: user.authorization_token,

@@ -1,7 +1,7 @@
 import { logger } from "@helpers/logger";
 import { type ReservedSQL, sql } from "bun";
 
-const defaultSettings: { key: string; value: string }[] = [
+const defaultSettings: Setting[] = [
 	{ key: "default_role", value: "user" },
 	{ key: "default_timezone", value: "UTC" },
 	{ key: "server_timezone", value: "UTC" },
@@ -114,10 +114,10 @@ export async function setSetting(
 
 	try {
 		await reservation`
-		INSERT INTO settings ("key", "value")
-		VALUES (${key}, ${value})
-		ON CONFLICT ("key")
-		DO UPDATE SET "value" = ${value};`;
+			INSERT INTO settings ("key", "value", updated_at)
+			VALUES (${key}, ${value}, NOW())
+			ON CONFLICT ("key")
+			DO UPDATE SET "value" = ${value}, "updated_at" = NOW();`;
 	} catch (error) {
 		logger.error(["Could not set the setting:", error as Error]);
 		throw error;

@@ -1,5 +1,7 @@
+import { dataType } from "@config/environment";
 import { logger } from "@helpers/logger";
-import { type ReservedSQL, sql } from "bun";
+import { type ReservedSQL, s3, sql } from "bun";
+import { existsSync, mkdirSync } from "fs";
 import { readdir } from "fs/promises";
 import { resolve } from "path";
 
@@ -38,6 +40,41 @@ async function main(): Promise<void> {
 				error as Error,
 			]);
 			process.exit(1);
+		}
+
+		if (dataType.type === "local" && dataType.path) {
+			if (!existsSync(dataType.path)) {
+				try {
+					mkdirSync(dataType.path);
+				} catch (error) {
+					logger.error([
+						"Could not create datasource local directory",
+						error as Error,
+					]);
+					process.exit(1);
+				}
+			}
+
+			logger.info([
+				"Using local datasource directory",
+				`${dataType.path}`,
+			]);
+		} else {
+			try {
+				await s3.write("test", "test");
+				await s3.delete("test");
+
+				logger.info([
+					"Connected to S3 with bucket",
+					`${process.env.S3_BUCKET}`,
+				]);
+			} catch (error) {
+				logger.error([
+					"Could not establish a connection to S3 bucket:",
+					error as Error,
+				]);
+				process.exit(1);
+			}
 		}
 
 		await redis.initialize();
