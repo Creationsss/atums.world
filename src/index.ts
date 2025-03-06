@@ -13,12 +13,26 @@ async function initializeDatabase(): Promise<void> {
 	const sqlDir: string = resolve("config", "sql");
 	const files: string[] = await readdir(sqlDir);
 
-	const reservation: ReservedSQL = await sql.reserve();
-	for (const file of files) {
-		if (file.endsWith(".ts")) {
-			const { createTable } = await import(resolve(sqlDir, file));
+	const modules: Module[] = await Promise.all(
+		files
+			.filter((file: string): boolean => file.endsWith(".ts"))
+			.map(async (file: string): Promise<Module> => {
+				const module: Module["module"] = await import(
+					resolve(sqlDir, file)
+				);
+				return { file, module };
+			}),
+	);
 
-			await createTable(reservation);
+	modules.sort(
+		(a: Module, b: Module): number =>
+			(a.module.order ?? 0) - (b.module.order ?? 0),
+	);
+
+	const reservation: ReservedSQL = await sql.reserve();
+	for (const { module } of modules) {
+		if (module.createTable) {
+			await module.createTable(reservation);
 		}
 	}
 

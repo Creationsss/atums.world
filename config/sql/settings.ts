@@ -1,6 +1,8 @@
 import { logger } from "@helpers/logger";
 import { type ReservedSQL, sql } from "bun";
 
+export const order: number = 2;
+
 const defaultSettings: Setting[] = [
 	{ key: "default_role", value: "user" },
 	{ key: "default_timezone", value: "UTC" },
@@ -21,45 +23,62 @@ export async function createTable(reservation?: ReservedSQL): Promise<void> {
 
 	try {
 		await reservation`
-		CREATE TABLE IF NOT EXISTS settings (
-			"key" VARCHAR(64) PRIMARY KEY NOT NULL UNIQUE,
-			"value" TEXT NOT NULL,
-			created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
-			updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
-		);`;
+			CREATE TABLE IF NOT EXISTS settings (
+				"key" VARCHAR(64) PRIMARY KEY NOT NULL UNIQUE,
+				"value" TEXT NOT NULL,
+				created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+				updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+			);
+		`;
+
+		const functionExists: { exists: boolean }[] = await reservation`
+			SELECT EXISTS (
+				SELECT 1 FROM pg_proc
+				JOIN pg_namespace ON pg_proc.pronamespace = pg_namespace.oid
+				WHERE proname = 'update_settings_updated_at' AND nspname = 'public'
+			);
+		`;
+
+		if (!functionExists[0].exists) {
+			await reservation`
+				CREATE FUNCTION update_settings_updated_at()
+				RETURNS TRIGGER AS $$
+				BEGIN
+					NEW.updated_at = NOW();
+					RETURN NEW;
+				END;
+				$$ LANGUAGE plpgsql;
+			`;
+		}
+
+		const triggerExists: { exists: boolean }[] = await reservation`
+			SELECT EXISTS (
+				SELECT 1 FROM pg_trigger
+				WHERE tgname = 'trigger_update_settings_updated_at'
+			);
+		`;
+
+		if (!triggerExists[0].exists) {
+			await reservation`
+				CREATE TRIGGER trigger_update_settings_updated_at
+				BEFORE UPDATE ON settings
+				FOR EACH ROW
+				EXECUTE FUNCTION update_settings_updated_at();
+			`;
+		}
 
 		for (const setting of defaultSettings) {
 			await reservation`
-			INSERT INTO settings ("key", "value")
-			VALUES (${setting.key}, ${setting.value})
-			ON CONFLICT ("key")
-			DO NOTHING;`;
+				INSERT INTO settings ("key", "value")
+				VALUES (${setting.key}, ${setting.value})
+				ON CONFLICT ("key") DO NOTHING;
+			`;
 		}
 	} catch (error) {
-		logger.error(["Could not create the settings table:", error as Error]);
-		throw error;
-	} finally {
-		if (selfReservation) {
-			reservation.release();
-		}
-	}
-}
-
-export async function drop(
-	cascade: boolean,
-	reservation?: ReservedSQL,
-): Promise<void> {
-	let selfReservation: boolean = false;
-
-	if (!reservation) {
-		reservation = await sql.reserve();
-		selfReservation = true;
-	}
-
-	try {
-		await reservation`DROP TABLE IF EXISTS settings ${cascade ? "CASCADE" : ""};`;
-	} catch (error) {
-		logger.error(["Could not drop the settings table:", error as Error]);
+		logger.error([
+			"Could not create the settings table or trigger:",
+			error as Error,
+		]);
 		throw error;
 	} finally {
 		if (selfReservation) {

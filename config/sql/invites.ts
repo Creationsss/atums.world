@@ -1,6 +1,8 @@
 import { logger } from "@helpers/logger";
 import { type ReservedSQL, sql } from "bun";
 
+export const order: number = 3;
+
 export async function createTable(reservation?: ReservedSQL): Promise<void> {
 	let selfReservation: boolean = false;
 
@@ -22,29 +24,6 @@ export async function createTable(reservation?: ReservedSQL): Promise<void> {
 			);`;
 	} catch (error) {
 		logger.error(["Could not create the invites table:", error as Error]);
-		throw error;
-	} finally {
-		if (selfReservation) {
-			reservation.release();
-		}
-	}
-}
-
-export async function drop(
-	cascade: boolean,
-	reservation?: ReservedSQL,
-): Promise<void> {
-	let selfReservation: boolean = false;
-
-	if (!reservation) {
-		reservation = await sql.reserve();
-		selfReservation = true;
-	}
-
-	try {
-		await reservation`DROP TABLE IF EXISTS invites ${cascade ? "CASCADE" : ""};`;
-	} catch (error) {
-		logger.error(["Could not drop the invites table:", error as Error]);
 		throw error;
 	} finally {
 		if (selfReservation) {

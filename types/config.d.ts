@@ -13,3 +13,11 @@ type Setting = {
 	key: string;
 	value: string;
 };
+
+type Module = {
+	file: string;
+	module: {
+		order?: number;
+		createTable?: (reservation?: ReservedSQL) => Promise<void>;
+	};
+};

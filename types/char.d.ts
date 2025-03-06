@@ -7,3 +7,5 @@ type DurationObject = {
 	minutes: number;
 	seconds: number;
 };
+
+type UUID = `${string}-${string}-${string}-${string}-${string}`;
