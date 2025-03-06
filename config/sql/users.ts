@@ -66,7 +66,7 @@ export const userNameRestrictions: {
 	regex: RegExp;
 } = {
 	length: { min: 3, max: 20 },
-	regex: /^[\p{L}0-9._-]+$/u,
+	regex: /^[\p{L}\p{N}._-]+$/u,
 };
 
 export const passwordRestrictions: {

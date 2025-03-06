@@ -53,6 +53,7 @@ async function handler(
 		}
 	});
 
+	const normalizedUsername: string = username.normalize("NFC");
 	const reservation: ReservedSQL = await sql.reserve();
 	let firstUser: boolean = false;
 	let inviteData: Invite | null = null;
@@ -91,7 +92,7 @@ async function handler(
 		const result: { usernameExists: boolean; emailExists: boolean }[] =
 			await reservation`
 				SELECT
-				EXISTS(SELECT 1 FROM users WHERE LOWER(username) = LOWER(${username})) AS "usernameExists",
+				EXISTS(SELECT 1 FROM users WHERE LOWER(username) = LOWER(${normalizedUsername})) AS "usernameExists",
 				EXISTS(SELECT 1 FROM users WHERE LOWER(email) = LOWER(${email})) AS "emailExists";
 			`;
 
@@ -137,7 +138,7 @@ async function handler(
 	try {
 		const result: User[] = await reservation`
 				INSERT INTO users (username, email, password, invited_by, roles, timezone)
-				VALUES (${username}, ${email}, ${hashedPassword}, ${inviteData?.created_by}, ARRAY[${roles.join(",")}]::TEXT[], ${defaultTimezone})
+				VALUES (${normalizedUsername}, ${email}, ${hashedPassword}, ${inviteData?.created_by}, ARRAY[${roles.join(",")}]::TEXT[], ${defaultTimezone})
 				RETURNING *;
 			`;
 

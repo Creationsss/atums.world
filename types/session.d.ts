@@ -37,3 +37,19 @@ type Invite = {
 	max_uses: number;
 	role: string;
 };
+
+type GetUser = {
+	id?: UUID;
+	authorization_token?: UUID;
+	username?: string;
+	email?: string;
+	email_verified?: boolean;
+	password?: string;
+	avatar?: boolean;
+	roles?: string[];
+	timezone?: string;
+	invited_by?: UUID;
+	created_at?: Date;
+	last_seen?: Date;
+	invites?: Invite[];
+};
