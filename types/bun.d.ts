@@ -11,5 +11,6 @@ declare global {
 		query: Query;
 		params: Params;
 		session: UserSession | ApiUserSession | null;
+		actualContentType: string | null;
 	}
 }

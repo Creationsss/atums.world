@@ -100,3 +100,23 @@ export function generateRandomString(length?: number): string {
 
 	return result;
 }
+
+export function getBaseUrl(request: Request): string {
+	const url: URL = new URL(request.url);
+	const protocol: string = url.protocol.slice(0, -1);
+	const portSegment: string = url.port ? `:${url.port}` : "";
+
+	return `${protocol}://${url.hostname}${portSegment}`;
+}
+
+// * File Specific Helpers
+export function getExtension(fileName: string): string | null {
+	return fileName.split(".").length > 1 && fileName.split(".").pop() !== ""
+		? (fileName.split(".").pop() ?? null)
+		: null;
+}
+
+export function nameWithoutExtension(fileName: string): string {
+	const extension: string | null = getExtension(fileName);
+	return extension ? fileName.slice(0, -extension.length - 1) : fileName;
+}

@@ -7,6 +7,7 @@ import {
 } from "@config/sql/users";
 import { password as bunPassword, type ReservedSQL, sql } from "bun";
 
+import { isValidTimezone } from "@/helpers/char";
 import { logger } from "@/helpers/logger";
 import { sessionManager } from "@/helpers/sessions";
 
@@ -21,11 +22,12 @@ async function handler(
 	request: ExtendedRequest,
 	requestBody: unknown,
 ): Promise<Response> {
-	const { username, email, password, invite } = requestBody as {
+	const { username, email, password, invite, timezone } = requestBody as {
 		username: string;
 		email: string;
 		password: string;
 		invite?: string;
+		timezone?: string;
 	};
 
 	if (!username || !email || !password) {
@@ -102,7 +104,7 @@ async function handler(
 			errors.push("Username or email already exists");
 		}
 
-		if (invite) {
+		if (invite && !firstUser) {
 			const result: Invite[] =
 				await reservation`SELECT * FROM invites WHERE id = ${invite};`;
 
@@ -132,13 +134,15 @@ async function handler(
 	const hashedPassword: string = await bunPassword.hash(password, {
 		algorithm: "argon2id",
 	});
-	const defaultTimezone: string =
-		(await getSetting("default_timezone", reservation)) || "UTC";
+	const setTimezone: string =
+		timezone && isValidTimezone(timezone)
+			? timezone
+			: (await getSetting("default_timezone", reservation)) || "UTC";
 
 	try {
 		const result: User[] = await reservation`
 				INSERT INTO users (username, email, password, invited_by, roles, timezone)
-				VALUES (${normalizedUsername}, ${email}, ${hashedPassword}, ${inviteData?.created_by}, ARRAY[${roles.join(",")}]::TEXT[], ${defaultTimezone})
+				VALUES (${normalizedUsername}, ${email}, ${hashedPassword}, ${inviteData?.created_by}, ARRAY[${roles.join(",")}]::TEXT[], ${setTimezone})
 				RETURNING *;
 			`;
 
@@ -197,17 +201,19 @@ async function handler(
 		reservation.release();
 	}
 
+	const userSession: UserSession = {
+		id: user.id,
+		username: user.username,
+		email: user.email,
+		email_verified: user.email_verified,
+		roles: user.roles[0].split(","),
+		avatar: user.avatar,
+		timezone: user.timezone,
+		authorization_token: user.authorization_token,
+	};
+
 	const sessionCookie: string = await sessionManager.createSession(
-		{
-			id: user.id,
-			username: user.username,
-			email: user.email,
-			email_verified: user.email_verified,
-			roles: user.roles[0].split(","),
-			avatar: user.avatar,
-			timezone: user.timezone,
-			authorization_token: user.authorization_token,
-		},
+		userSession,
 		request.headers.get("User-Agent") || "",
 	);
 
@@ -216,7 +222,7 @@ async function handler(
 			success: true,
 			code: 201,
 			message: "User Registered",
-			id: user.id,
+			user: userSession,
 		},
 		{ status: 201, headers: { "Set-Cookie": sessionCookie } },
 	);

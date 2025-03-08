@@ -63,7 +63,10 @@ async function handler(request: ExtendedRequest): Promise<Response> {
 		user = result[0];
 		isSelf = request.session ? user.id === request.session.id : false;
 
-		if (showInvites === "true" && (isAdmin || isSelf)) {
+		if (
+			(showInvites === "true" || showInvites === "1") &&
+			(isAdmin || isSelf)
+		) {
 			const invites: Invite[] =
 				await sql`SELECT * FROM invites WHERE created_by = ${user.id}`;
 			user.invites = invites;

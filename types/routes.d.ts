@@ -1,6 +1,6 @@
 type RouteDef = {
-	method: string;
-	accepts: string | null;
+	method: string | string[];
+	accepts: string | null | string[];
 	returns: string;
 	needsBody?: "multipart" | "json";
 };

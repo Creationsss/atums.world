@@ -1,4 +1,4 @@
-type File = {
+type FileEntry = {
 	id: UUID;
 	owner: UUID;
 	folder?: UUID | null;
@@ -6,19 +6,22 @@ type File = {
 	name: string;
 	original_name?: string | null;
 	mime_type: string;
+	extension?: string | null;
 	size: number;
 
 	views: number;
-	max_views: number;
+	max_views: number | null;
 	password?: string | null;
 	favorite: boolean;
 	tags: string[];
 	thumbnail: boolean;
 
-	created_at: Date;
-	updated_at: Date;
-	expires_at?: Date | null;
+	created_at: string;
+	updated_at: string;
+	expires_at?: string | null;
 };
+
+type FileUpload = Partial<FileEntry>;
 
 type Folder = {
 	id: UUID;
@@ -28,6 +31,6 @@ type Folder = {
 	public: boolean;
 	allow_uploads: boolean;
 
-	created_at: Date;
-	updated_at: Date;
+	created_at: string;
+	updated_at: string;
 };

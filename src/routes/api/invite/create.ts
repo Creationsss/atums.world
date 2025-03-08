@@ -19,10 +19,10 @@ async function handler(
 		return Response.json(
 			{
 				success: false,
-				code: 403,
+				code: 401,
 				error: "Unauthorized",
 			},
-			{ status: 403 },
+			{ status: 401 },
 		);
 	}
 

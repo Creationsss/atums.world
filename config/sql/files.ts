@@ -21,10 +21,11 @@ export async function createTable(reservation?: ReservedSQL): Promise<void> {
 				name VARCHAR(255) NOT NULL,
 				original_name VARCHAR(255),
 				mime_type VARCHAR(255) NOT NULL,
+				extension VARCHAR(255) NOT NULL,
 				size BIGINT NOT NULL,
 
 				views INTEGER DEFAULT 0,
-				max_views INTEGER DEFAULT 1,
+				max_views INTEGER DEFAULT NULL,
 				password TEXT DEFAULT NULL,
 				favorite BOOLEAN DEFAULT FALSE,
 				tags TEXT[] DEFAULT ARRAY[]::TEXT[],

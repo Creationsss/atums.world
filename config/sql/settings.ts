@@ -11,6 +11,8 @@ const defaultSettings: Setting[] = [
 	{ key: "enable_invitations", value: "true" },
 	{ key: "allow_user_invites", value: "false" },
 	{ key: "require_email_verification", value: "false" },
+	{ key: "date_format", value: "yyyy-MM-dd_HH-mm-ss" },
+	{ key: "random_name_length", value: "8" },
 ];
 
 export async function createTable(reservation?: ReservedSQL): Promise<void> {

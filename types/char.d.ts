@@ -9,3 +9,4 @@ type DurationObject = {
 };
 
 type UUID = `${string}-${string}-${string}-${string}-${string}`;
+type PartialExcept<T, K extends keyof T> = Partial<T> & Pick<T, K>;
