@@ -1,6 +1,15 @@
+import { dataType } from "@config/environment";
 import { getSetting } from "@config/sql/settings";
-import { password as bunPassword, randomUUIDv7 } from "bun";
+import {
+	password as bunPassword,
+	randomUUIDv7,
+	s3,
+	sql,
+	type SQLQuery,
+} from "bun";
+import { exiftool } from "exiftool-vendored";
 import { DateTime } from "luxon";
+import { resolve } from "path";
 
 import {
 	generateRandomString,
@@ -8,7 +17,9 @@ import {
 	getExtension,
 	getNewTimeUTC,
 	nameWithoutExtension,
+	supportsExif,
 } from "@/helpers/char";
+import { logger } from "@/helpers/logger";
 
 const routeDef: RouteDef = {
 	method: "POST",
@@ -16,19 +27,108 @@ const routeDef: RouteDef = {
 	returns: "application/json",
 };
 
-async function handler(request: ExtendedRequest): Promise<Response> {
-	if (!request.session || request.session === null) {
-		return Response.json(
-			{
-				success: false,
-				code: 401,
-				error: "Unauthorized",
-			},
-			{ status: 401 },
-		);
-	}
+async function removeExifData(
+	fileBuffer: ArrayBuffer,
+	extension: string,
+): Promise<ArrayBuffer> {
+	const tempInputPath: string = resolve(
+		"temp",
+		`${generateRandomString(5)}.${extension}`,
+	);
 
-	const session: UserSession | ApiUserSession = request.session;
+	try {
+		await Bun.write(tempInputPath, fileBuffer, { createPath: true });
+
+		const tagsToRemove: Record<string, null> = {
+			GPSAltitude: null,
+			GPSAltitudeRef: null,
+			GPSAreaInformation: null,
+			GPSCoordinates: null,
+			GPSDateStamp: null,
+			GPSDestBearing: null,
+			GPSDateTime: null,
+			GPSDestBearingRef: null,
+			GPSDestDistance: null,
+			GPSDestDistanceRef: null,
+			GPSDestLatitude: null,
+			GPSDestLatitudeRef: null,
+			GPSDestLongitude: null,
+			GPSDestLongitudeRef: null,
+			GPSDifferential: null,
+			GPSDOP: null,
+			GPSHPositioningError: null,
+			GPSImgDirection: null,
+			GPSImgDirectionRef: null,
+			GPSLatitude: null,
+			GPSLatitudeRef: null,
+			GPSLongitude: null,
+			GPSLongitudeRef: null,
+			GPSMapDatum: null,
+			GPSMeasureMode: null,
+			GPSPosition: null,
+			GPSProcessingMethod: null,
+			GPSSatellites: null,
+			GPSSpeed: null,
+			GPSSpeedRef: null,
+			GPSStatus: null,
+			GPSTimeStamp: null,
+			GPSTrack: null,
+			GPSTrackRef: null,
+			GPSValid: null,
+			GPSVersionID: null,
+			GeolocationBearing: null,
+			GeolocationCity: null,
+			GeolocationCountry: null,
+			GeolocationCountryCode: null,
+			GeolocationDistance: null,
+			GeolocationFeatureCode: null,
+			GeolocationFeatureType: null,
+			GeolocationPopulation: null,
+			GeolocationPosition: null,
+			GeolocationRegion: null,
+			GeolocationSubregion: null,
+			GeolocationTimeZone: null,
+			GeolocationWarning: null,
+			Location: null,
+			LocationAccuracyHorizontal: null,
+			LocationAreaCode: null,
+			LocationInfoVersion: null,
+			LocationName: null,
+		};
+
+		await exiftool.write(tempInputPath, tagsToRemove, [
+			"-overwrite_original",
+		]);
+
+		const modifiedBuffer: ArrayBuffer =
+			await Bun.file(tempInputPath).arrayBuffer();
+
+		return modifiedBuffer;
+	} catch (error) {
+		logger.error(["Error modifying EXIF data:", error as Error]);
+		return fileBuffer;
+	} finally {
+		try {
+			await Bun.file(tempInputPath).unlink();
+		} catch (cleanupError) {
+			logger.error([
+				"Error cleaning up temp EXIF data file:",
+				cleanupError as Error,
+			]);
+		}
+	}
+}
+
+async function processFile(
+	file: File,
+	key: string,
+	failedFiles: { reason: string; file: string }[],
+	successfulFiles: FileUpload[],
+	request: ExtendedRequest,
+): Promise<void> {
+	const session: UserSession | ApiUserSession = request.session as
+		| UserSession
+		| ApiUserSession;
 
 	const {
 		max_views: user_provided_max_views,
@@ -61,6 +161,184 @@ async function handler(request: ExtendedRequest): Promise<Response> {
 		})(),
 		clearExif: request.headers.get("X-Clear-Exif") ?? "",
 	};
+
+	const extension: string | null = getExtension(file.name);
+	let rawName: string | null = nameWithoutExtension(file.name);
+	const maxViews: number | null =
+		parseInt(user_provided_max_views, 10) || null;
+
+	if (!rawName) {
+		failedFiles.push({
+			reason: "Invalid file name",
+			file: key,
+		});
+		return;
+	}
+
+	let hashedPassword: string | null = null;
+
+	if (user_provided_password) {
+		try {
+			hashedPassword = await bunPassword.hash(user_provided_password, {
+				algorithm: "argon2id",
+			});
+		} catch (error) {
+			throw error;
+		}
+	}
+
+	const randomUUID: string = randomUUIDv7();
+	const tags: string[] = Array.isArray(user_provided_tags)
+		? user_provided_tags
+		: (user_provided_tags?.split(/[, ]+/).filter(Boolean) ?? []);
+
+	let uploadEntry: FileUpload = {
+		id: randomUUID as UUID,
+		owner: session.id as UUID,
+		name: rawName,
+		mime_type: file.type,
+		extension: extension,
+		size: file.size,
+		max_views: maxViews,
+		password: hashedPassword,
+		favorite: user_wants_favorite === "true" || user_wants_favorite === "1",
+		tags: tags,
+		expires_at: delete_short_string
+			? getNewTimeUTC(delete_short_string)
+			: null,
+	};
+
+	if (name_format === "date") {
+		const setTimezone: string =
+			session.timezone || (await getSetting("default_timezone")) || "UTC";
+		const date: DateTime = DateTime.local().setZone(setTimezone);
+		uploadEntry.name = `${date.toFormat((await getSetting("date_format")) || "yyyy-MM-dd_HH-mm-ss")}`;
+	} else if (name_format === "random") {
+		uploadEntry.name = generateRandomString(
+			Number(await getSetting("random_name_length")) || 8,
+		);
+	} else if (name_format === "uuid") {
+		uploadEntry.name = randomUUID;
+	} else {
+		// ? Should work not sure about non-english characters
+		const sanitizedFileName: string = rawName
+			.normalize("NFD")
+			.replace(/[\u0300-\u036f]/g, "")
+			.replace(/[^a-zA-Z0-9._-]/g, "_")
+			.toLowerCase();
+		if (sanitizedFileName.length > 255)
+			uploadEntry.name = sanitizedFileName.substring(0, 255);
+
+		try {
+			const existingFile: FileEntry[] = await sql`
+				SELECT * FROM files WHERE owner = ${session.id} AND name = ${uploadEntry.name};
+			`;
+
+			if (existingFile.length > 0) {
+				const maxBaseLength: number = 255 - 6;
+				uploadEntry.name = `${uploadEntry.name?.substring(0, maxBaseLength)}_${generateRandomString(5)}`;
+			}
+		} catch (error) {
+			logger.error(["Error checking for existing file:", error as Error]);
+
+			failedFiles.push({
+				reason: "Failed to check for existing file",
+				file: key,
+			});
+			return;
+		}
+	}
+
+	if (uploadEntry.name !== rawName) uploadEntry.original_name = rawName;
+
+	let fileBuffer: ArrayBuffer = await file.arrayBuffer();
+
+	if (
+		supportsExif(file.type, extension ?? "") &&
+		(userHeaderOptions.clearExif === "true" ||
+			userHeaderOptions.clearExif === "1")
+	) {
+		fileBuffer = await removeExifData(fileBuffer, extension ?? "");
+	}
+
+	const uuidWithExtension: string = `${uploadEntry.id}${extension ? `.${extension}` : ""}`;
+
+	let path: string;
+	if (dataType.type === "local" && dataType.path) {
+		path = resolve(dataType.path, uuidWithExtension);
+
+		try {
+			await Bun.write(path, fileBuffer, { createPath: true });
+		} catch (error) {
+			logger.error(["Error writing file to disk:", error as Error]);
+
+			failedFiles.push({
+				reason: "Failed to write file",
+				file: key,
+			});
+			return;
+		}
+	} else {
+		path = "/uploads/" + uuidWithExtension;
+
+		try {
+			await s3.write(path, fileBuffer);
+		} catch (error) {
+			logger.error(["Error writing file to S3:", error as Error]);
+
+			failedFiles.push({
+				reason: "Failed to write file",
+				file: key,
+			});
+			return;
+		}
+	}
+
+	try {
+		const result: FileUpload[] = await sql`
+			INSERT INTO files ( id, owner, folder, name, original_name, mime_type, extension, size, max_views, password, favorite, tags, expires_at )
+			VALUES (
+				${uploadEntry.id}, ${uploadEntry.owner}, ${folder_identifier}, ${uploadEntry.name},
+				${uploadEntry.original_name}, ${uploadEntry.mime_type}, ${uploadEntry.extension},
+				${uploadEntry.size}, ${uploadEntry.max_views}, ${uploadEntry.password},
+				${uploadEntry.favorite}, ARRAY[${(uploadEntry.tags ?? []).map((tag: string): SQLQuery => sql`${tag}`)}]::TEXT[],
+				${uploadEntry.expires_at}
+			)
+			RETURNING id;
+		`;
+
+		if (result.length === 0) {
+			failedFiles.push({
+				reason: "Failed to create file entry",
+				file: key,
+			});
+			return;
+		}
+	} catch (error) {
+		logger.error(["Error creating file entry:", error as Error]);
+
+		failedFiles.push({
+			reason: "Failed to create file entry",
+			file: key,
+		});
+		return;
+	}
+
+	uploadEntry.url = `${userHeaderOptions.domain}/f/${uploadEntry.name}`;
+	successfulFiles.push(uploadEntry); // ? should i remove the password from the response
+}
+
+async function handler(request: ExtendedRequest): Promise<Response> {
+	if (!request.session) {
+		return Response.json(
+			{
+				success: false,
+				code: 401,
+				error: "Unauthorized",
+			},
+			{ status: 401 },
+		);
+	}
 
 	let requestBody: FormData | null;
 	if (request.actualContentType === "multipart/form-data") {
@@ -114,126 +392,55 @@ async function handler(request: ExtendedRequest): Promise<Response> {
 	}
 
 	const failedFiles: { reason: string; file: string }[] = [];
-	const successfulFiles: string[] = [];
+	const successfulFiles: FileUpload[] = [];
 
-	formData.forEach(
-		async (file: FormDataEntryValue, key: string): Promise<void> => {
-			if (!(file instanceof File)) {
-				failedFiles.push({
-					reason: "Invalid file",
-					file: key,
-				});
-				return;
-			}
+	const files: { key: string; file: File }[] = [];
 
-			if (!file.type || file.type === "") {
-				failedFiles.push({
-					reason: "Cannot determine file type",
-					file: key,
-				});
-				return;
-			}
+	formData.forEach((value: FormDataEntryValue, key: string): void => {
+		if (value instanceof File) {
+			files.push({ key, file: value });
+		}
+	});
 
-			if (!file.size || file.size === 0) {
-				failedFiles.push({
-					reason: "Empty file",
-					file: key,
-				});
-				return;
-			}
+	for (const { key, file } of files) {
+		if (!file.type || file.type === "") {
+			failedFiles.push({
+				reason: "Cannot determine file type",
+				file: key,
+			});
+			continue;
+		}
 
-			if (!file.name || file.name === "") {
-				failedFiles.push({
-					reason: "Missing file name",
-					file: key,
-				});
-				return;
-			}
+		if (!file.size || file.size === 0) {
+			failedFiles.push({
+				reason: "Empty file",
+				file: key,
+			});
+			continue;
+		}
 
-			const extension: string | null = getExtension(file.name);
-			let rawName: string | null = nameWithoutExtension(file.name);
-			const maxViews: number | null =
-				parseInt(user_provided_max_views, 10) || null;
+		if (!file.name || file.name === "") {
+			failedFiles.push({
+				reason: "Missing file name",
+				file: key,
+			});
+			continue;
+		}
 
-			if (!rawName) {
-				failedFiles.push({
-					reason: "Invalid file name",
-					file: key,
-				});
-				return;
-			}
-
-			let hashedPassword: string | null = null;
-
-			if (user_provided_password) {
-				try {
-					hashedPassword = await bunPassword.hash(
-						user_provided_password,
-						{
-							algorithm: "argon2id",
-						},
-					);
-				} catch (error) {
-					throw error;
-				}
-			}
-
-			const tags: string[] = Array.isArray(user_provided_tags)
-				? user_provided_tags
-				: (user_provided_tags?.split(/[, ]+/).filter(Boolean) ?? []);
-
-			let uploadEntry: FileUpload = {
-				owner: session.id as UUID,
-				name: rawName,
-				mime_type: file.type,
-				extension: extension,
-				size: file.size,
-				max_views: maxViews,
-				password: hashedPassword,
-				favorite:
-					user_wants_favorite === "true" ||
-					user_wants_favorite === "1",
-				tags: tags,
-				expires_at: delete_short_string
-					? getNewTimeUTC(delete_short_string)
-					: null,
-			};
-
-			if (name_format === "date") {
-				const setTimezone: string =
-					session.timezone ||
-					(await getSetting("default_timezone")) ||
-					"UTC";
-				const date: DateTime = DateTime.local().setZone(setTimezone);
-				uploadEntry.name = `${date.toFormat((await getSetting("date_format")) || "yyyy-MM-dd_HH-mm-ss")}`;
-			} else if (name_format === "random") {
-				uploadEntry.name = generateRandomString(
-					Number(await getSetting("random_name_length")) || 8,
-				);
-			} else if (name_format === "uuid") {
-				const randomUUID: string = randomUUIDv7();
-				uploadEntry.name = randomUUID;
-				uploadEntry.id = randomUUID as UUID;
-			} else {
-				// ? Should work not sure about non-english characters
-				const sanitizedFileName: string = rawName
-					.normalize("NFD")
-					.replace(/[\u0300-\u036f]/g, "")
-					.replace(/[^a-zA-Z0-9._-]/g, "_")
-					.toLowerCase();
-				if (sanitizedFileName.length > 255)
-					uploadEntry.name = sanitizedFileName.substring(0, 255);
-			}
-
-			if (uploadEntry.name !== rawName)
-				uploadEntry.original_name = rawName;
-
-			// let fileBuffer: ArrayBuffer = await file.arrayBuffer();
-		},
-	);
+		try {
+			await processFile(file, key, failedFiles, successfulFiles, request);
+		} catch (error) {
+			logger.error(["Error processing file:", error as Error]);
+			failedFiles.push({
+				reason: "Unexpected error processing file",
+				file: key,
+			});
+		}
+	}
 
 	return Response.json({
 		success: true,
+		code: 200,
 		files: successfulFiles,
 		failed: failedFiles,
 	});

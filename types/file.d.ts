@@ -21,7 +21,9 @@ type FileEntry = {
 	expires_at?: string | null;
 };
 
-type FileUpload = Partial<FileEntry>;
+type FileUpload = Partial<FileEntry> & {
+	url?: string;
+};
 
 type Folder = {
 	id: UUID;

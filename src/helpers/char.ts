@@ -120,3 +120,32 @@ export function nameWithoutExtension(fileName: string): string {
 	const extension: string | null = getExtension(fileName);
 	return extension ? fileName.slice(0, -extension.length - 1) : fileName;
 }
+
+export function supportsExif(mimeType: string, extension: string): boolean {
+	const supportedMimeTypes: string[] = [
+		"image/jpeg",
+		"image/tiff",
+		"image/png",
+		"image/webp",
+		"image/heif",
+		"image/heic",
+	];
+	const supportedExtensions: string[] = [
+		"jpg",
+		"jpeg",
+		"tiff",
+		"png",
+		"webp",
+		"heif",
+		"heic",
+	];
+
+	return (
+		supportedMimeTypes.includes(mimeType.toLowerCase()) &&
+		supportedExtensions.includes(extension.toLowerCase())
+	);
+}
+
+export function supportsThumbnails(mimeType: string): boolean {
+	return /^(image\/(?!svg+xml)|video\/)/i.test(mimeType);
+}

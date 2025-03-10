@@ -10,13 +10,13 @@
 		"cleanup": "rm -rf logs node_modules bun.lockdb"
 	},
 	"devDependencies": {
-		"@eslint/js": "^9.21.0",
+		"@eslint/js": "^9.22.0",
 		"@types/bun": "^1.2.4",
 		"@types/ejs": "^3.1.5",
 		"@types/luxon": "^3.4.2",
-		"@typescript-eslint/eslint-plugin": "^8.26.0",
-		"@typescript-eslint/parser": "^8.26.0",
-		"eslint": "^9.21.0",
+		"@typescript-eslint/eslint-plugin": "^8.26.1",
+		"@typescript-eslint/parser": "^8.26.1",
+		"eslint": "^9.22.0",
 		"eslint-plugin-prettier": "^5.2.3",
 		"eslint-plugin-promise": "^7.2.1",
 		"eslint-plugin-simple-import-sort": "^12.1.1",
@@ -30,6 +30,7 @@
 	},
 	"dependencies": {
 		"ejs": "^3.1.10",
+		"exiftool-vendored": "^29.1.0",
 		"fast-jwt": "^5.0.5",
 		"luxon": "^3.5.0",
 		"redis": "^4.7.0"
