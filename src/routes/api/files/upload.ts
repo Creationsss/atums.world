@@ -18,6 +18,7 @@ import {
 	getNewTimeUTC,
 	nameWithoutExtension,
 	supportsExif,
+	supportsThumbnail,
 } from "@/helpers/char";
 import { logger } from "@/helpers/logger";
 
@@ -100,10 +101,7 @@ async function removeExifData(
 			"-overwrite_original",
 		]);
 
-		const modifiedBuffer: ArrayBuffer =
-			await Bun.file(tempInputPath).arrayBuffer();
-
-		return modifiedBuffer;
+		return await Bun.file(tempInputPath).arrayBuffer();
 	} catch (error) {
 		logger.error(["Error modifying EXIF data:", error as Error]);
 		return fileBuffer;
@@ -435,6 +433,29 @@ async function handler(request: ExtendedRequest): Promise<Response> {
 				reason: "Unexpected error processing file",
 				file: key,
 			});
+		}
+	}
+
+	const filesThatSupportThumbnails: FileUpload[] = successfulFiles.filter(
+		(file: FileUpload): boolean =>
+			supportsThumbnail(file.mime_type as string),
+	);
+	if (
+		(await getSetting("enable_thumbnails")) === "true" &&
+		filesThatSupportThumbnails.length > 0
+	) {
+		try {
+			const worker: Worker = new Worker(
+				"./src/helpers/workers/thumbnails.ts",
+				{
+					type: "module",
+				},
+			);
+			worker.postMessage({
+				files: filesThatSupportThumbnails,
+			});
+		} catch (error) {
+			logger.error(["Error starting thumbnail worker:", error as Error]);
 		}
 	}
 

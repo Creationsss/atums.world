@@ -130,17 +130,17 @@ class Logger {
 	}
 
 	public error(
-		message: string | Error | (string | Error)[],
+		message: string | Error | ErrorEvent | (string | Error)[],
 		breakLine: boolean = false,
 	): void {
 		const stack: string = new Error().stack || "";
 		const { filename, timestamp } = this.getCallerInfo(stack);
 
-		const messages: (string | Error)[] = Array.isArray(message)
+		const messages: (string | Error | ErrorEvent)[] = Array.isArray(message)
 			? message
 			: [message];
 		const joinedMessage: string = messages
-			.map((msg: string | Error): string =>
+			.map((msg: string | Error | ErrorEvent): string =>
 				typeof msg === "string" ? msg : msg.message,
 			)
 			.join(" ");

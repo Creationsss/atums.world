@@ -52,4 +52,6 @@ type GetUser = {
 	created_at?: Date;
 	last_seen?: Date;
 	invites?: Invite[];
+	files: number;
+	folders: number;
 };

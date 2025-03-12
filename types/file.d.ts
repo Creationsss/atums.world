@@ -25,6 +25,11 @@ type FileUpload = Partial<FileEntry> & {
 	url?: string;
 };
 
+type GetFile = Partial<FileEntry> & {
+	url?: string;
+	raw_url?: string;
+};
+
 type Folder = {
 	id: UUID;
 	owner: UUID;

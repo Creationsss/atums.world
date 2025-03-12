@@ -1,5 +1,5 @@
 import { isValidUsername } from "@config/sql/users";
-import { sql } from "bun";
+import { type ReservedSQL, sql } from "bun";
 
 import { isUUID } from "@/helpers/char";
 import { logger } from "@/helpers/logger";
@@ -12,7 +12,9 @@ const routeDef: RouteDef = {
 
 async function handler(request: ExtendedRequest): Promise<Response> {
 	const { query } = request.params as { query: string };
-	const { invites: showInvites } = request.query as { invites: string };
+	const { invites: showInvites } = request.query as {
+		invites: string;
+	};
 
 	if (!query) {
 		return Response.json(
@@ -44,10 +46,12 @@ async function handler(request: ExtendedRequest): Promise<Response> {
 		);
 	}
 
+	const reservation: ReservedSQL = await sql.reserve();
+
 	try {
 		const result: GetUser[] = isId
-			? await sql`SELECT * FROM users WHERE id = ${normalized}`
-			: await sql`SELECT * FROM users WHERE username = ${normalized}`;
+			? await reservation`SELECT * FROM users WHERE id = ${normalized}`
+			: await reservation`SELECT * FROM users WHERE username = ${normalized}`;
 
 		if (result.length === 0) {
 			return Response.json(
@@ -61,15 +65,23 @@ async function handler(request: ExtendedRequest): Promise<Response> {
 		}
 
 		user = result[0];
+
 		isSelf = request.session ? user.id === request.session.id : false;
+
+		const files: { count: bigint }[] =
+			await reservation`SELECT COUNT(*) FROM files WHERE owner = ${user.id}`;
+		const folders: { count: bigint }[] =
+			await reservation`SELECT COUNT(*) FROM folders WHERE owner = ${user.id}`;
+
+		if (files) user.files = Number(files[0].count);
+		if (folders) user.folders = Number(folders[0].count);
 
 		if (
 			(showInvites === "true" || showInvites === "1") &&
 			(isAdmin || isSelf)
 		) {
-			const invites: Invite[] =
-				await sql`SELECT * FROM invites WHERE created_by = ${user.id}`;
-			user.invites = invites;
+			user.invites =
+				await reservation`SELECT * FROM invites WHERE created_by = ${user.id}`;
 		}
 	} catch (error) {
 		logger.error([
@@ -84,6 +96,19 @@ async function handler(request: ExtendedRequest): Promise<Response> {
 				error: "An error occurred while fetching user data",
 			},
 			{ status: 500 },
+		);
+	} finally {
+		reservation.release();
+	}
+
+	if (!user) {
+		return Response.json(
+			{
+				success: false,
+				code: 404,
+				error: "User not found",
+			},
+			{ status: 404 },
 		);
 	}
 

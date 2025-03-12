@@ -146,6 +146,6 @@ export function supportsExif(mimeType: string, extension: string): boolean {
 	);
 }
 
-export function supportsThumbnails(mimeType: string): boolean {
+export function supportsThumbnail(mimeType: string): boolean {
 	return /^(image\/(?!svg+xml)|video\/)/i.test(mimeType);
 }

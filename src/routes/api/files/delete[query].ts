@@ -125,7 +125,7 @@ async function handler(
 	}
 
 	const isAdmin: boolean = request.session.roles.includes("admin");
-	const { file } = request.params as { file: string };
+	const { query: file } = request.params as { query: string };
 	let { files } = requestBody as { files: string[] | string };
 	// const { password } = request.query as { password: string };
 
@@ -133,7 +133,7 @@ async function handler(
 	const successfulFiles: string[] = [];
 
 	try {
-		if (file) {
+		if (file && !(typeof file === "string" && file.length === 0)) {
 			await processFile(
 				request,
 				file,
@@ -145,6 +145,16 @@ async function handler(
 			files = Array.isArray(files)
 				? files
 				: files.split(/[, ]+/).filter(Boolean);
+
+			for (const file of files) {
+				await processFile(
+					request,
+					file,
+					isAdmin,
+					failedFiles,
+					successfulFiles,
+				);
+			}
 		}
 	} catch (error) {
 		logger.error(["Unexpected error", error as Error]);
@@ -161,7 +171,7 @@ async function handler(
 	return Response.json({
 		success: true,
 		code: 200,
-		files: successfulFiles,
+		deleted: successfulFiles,
 		failed: failedFiles,
 	});
 }
