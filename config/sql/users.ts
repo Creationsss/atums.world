@@ -39,7 +39,7 @@ export async function createTable(reservation?: ReservedSQL): Promise<void> {
 
 // * Validation functions
 
-// ? should support non english characters but wont mess up the url
+// ? should support non english characters but won't mess up the url
 export const userNameRestrictions: {
 	length: { min: number; max: number };
 	regex: RegExp;

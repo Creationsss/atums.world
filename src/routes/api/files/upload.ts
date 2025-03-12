@@ -224,17 +224,20 @@ async function processFile(
 			.replace(/[\u0300-\u036f]/g, "")
 			.replace(/[^a-zA-Z0-9._-]/g, "_")
 			.toLowerCase();
-		if (sanitizedFileName.length > 255)
-			uploadEntry.name = sanitizedFileName.substring(0, 255);
+
+		uploadEntry.name =
+			sanitizedFileName.length > 255
+				? sanitizedFileName.substring(0, 255)
+				: sanitizedFileName;
 
 		try {
 			const existingFile: FileEntry[] = await sql`
-				SELECT * FROM files WHERE owner = ${session.id} AND name = ${uploadEntry.name};
-			`;
+			SELECT * FROM files WHERE owner = ${session.id} AND name = ${uploadEntry.name};
+		`;
 
 			if (existingFile.length > 0) {
 				const maxBaseLength: number = 255 - 6;
-				uploadEntry.name = `${uploadEntry.name?.substring(0, maxBaseLength)}_${generateRandomString(5)}`;
+				uploadEntry.name = `${uploadEntry.name.substring(0, maxBaseLength)}_${generateRandomString(5)}`;
 			}
 		} catch (error) {
 			logger.error(["Error checking for existing file:", error as Error]);
@@ -322,8 +325,10 @@ async function processFile(
 		return;
 	}
 
-	uploadEntry.url = `${userHeaderOptions.domain}/f/${uploadEntry.name}`;
-	successfulFiles.push(uploadEntry); // ? should i remove the password from the response
+	if (uploadEntry.password) delete uploadEntry.password;
+
+	uploadEntry.url = `${userHeaderOptions.domain}/raw/${uploadEntry.name}`;
+	successfulFiles.push(uploadEntry);
 }
 
 async function handler(request: ExtendedRequest): Promise<Response> {

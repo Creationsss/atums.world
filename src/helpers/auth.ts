@@ -8,11 +8,6 @@ export async function authByToken(
 ): Promise<ApiUserSession | null> {
 	let selfReservation: boolean = false;
 
-	if (!reservation) {
-		reservation = await sql.reserve();
-		selfReservation = true;
-	}
-
 	const authorizationHeader: string | null =
 		request.headers.get("Authorization");
 
@@ -21,6 +16,11 @@ export async function authByToken(
 
 	const authorizationToken: string = authorizationHeader.slice(7).trim();
 	if (!authorizationToken || !isUUID(authorizationToken)) return null;
+
+	if (!reservation) {
+		reservation = await sql.reserve();
+		selfReservation = true;
+	}
 
 	try {
 		const result: User[] =

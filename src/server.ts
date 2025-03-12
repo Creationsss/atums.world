@@ -38,6 +38,7 @@ class ServerHandler {
 				message: webSocketHandler.handleMessage.bind(webSocketHandler),
 				close: webSocketHandler.handleClose.bind(webSocketHandler),
 			},
+			maxRequestBodySize: 10 * 1024 * 1024 * 1024, // 10GB ? will be changed to env var soon
 		});
 
 		logger.info(

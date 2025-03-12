@@ -109,16 +109,72 @@ export function getBaseUrl(request: Request): string {
 	return `${protocol}://${url.hostname}${portSegment}`;
 }
 
-// * File Specific Helpers
+const knownExtensions: Set<string> = new Set([
+	"mp4",
+	"txt",
+	"pdf",
+	"gz",
+	"tar",
+	"zip",
+	"7z",
+	"rar",
+	"png",
+	"jpg",
+	"jpeg",
+	"webp",
+	"gif",
+	"js",
+	"ts",
+	"tsx",
+	"json",
+	"html",
+	"css",
+	"md",
+	"log",
+	"db",
+	"db3",
+	"sqlite",
+	"csv",
+	"xml",
+	"yaml",
+	"yml",
+	"toml",
+	"ini",
+	"cfg",
+	"conf",
+	"env",
+	"sh",
+	"bash",
+	"zsh",
+	"fish",
+	"ps1",
+	"bat",
+	"cmd",
+	"py",
+	"pyc",
+	"pyo",
+	"pyd",
+	"pyw",
+	"pyz",
+	"pyzw",
+]);
+
 export function getExtension(fileName: string): string | null {
-	return fileName.split(".").length > 1 && fileName.split(".").pop() !== ""
-		? (fileName.split(".").pop() ?? null)
-		: null;
+	const lastDotIndex: number = fileName.lastIndexOf(".");
+	if (lastDotIndex <= 0) return null;
+
+	const ext: string = fileName.slice(lastDotIndex + 1).toLowerCase();
+	return knownExtensions.has(ext) ? ext : null;
 }
 
 export function nameWithoutExtension(fileName: string): string {
-	const extension: string | null = getExtension(fileName);
-	return extension ? fileName.slice(0, -extension.length - 1) : fileName;
+	const lastDotIndex: number = fileName.lastIndexOf(".");
+	if (lastDotIndex <= 0) return fileName;
+
+	const ext: string = fileName.slice(lastDotIndex + 1).toLowerCase();
+	return knownExtensions.has(ext)
+		? fileName.slice(0, lastDotIndex)
+		: fileName;
 }
 
 export function supportsExif(mimeType: string, extension: string): boolean {
