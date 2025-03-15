@@ -64,6 +64,38 @@ class SessionManager {
 		return payload;
 	}
 
+	public async updateSession(
+		request: Request,
+		payload: UserSession,
+		userAgent: string,
+	): Promise<string> {
+		const cookie: string | null = request.headers.get("Cookie");
+		if (!cookie) throw new Error("No session found in request");
+
+		const token: string | null =
+			cookie.match(/session=([^;]+)/)?.[1] || null;
+		if (!token) throw new Error("Session token not found");
+
+		const userSessions: string[] = await redis
+			.getInstance()
+			.keys("session:*:" + token);
+		if (!userSessions.length)
+			throw new Error("Session not found or expired");
+
+		const sessionKey: string = userSessions[0];
+
+		await redis
+			.getInstance()
+			.set(
+				"JSON",
+				sessionKey,
+				{ ...payload, userAgent },
+				this.getExpirationInSeconds(),
+			);
+
+		return this.generateCookie(token);
+	}
+
 	public async verifySession(token: string): Promise<UserSession> {
 		const userSessions: string[] = await redis
 			.getInstance()

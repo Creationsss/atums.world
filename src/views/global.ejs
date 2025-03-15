@@ -1,0 +1,31 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+
+<% if (title) { %>
+	<title><%= title %></title>
+<% } %>
+
+<link rel="stylesheet" href="/public/css/global.css">
+
+<% if (typeof styles !== "undefined") { %>
+	<% styles.forEach(style => { %>
+		<link rel="stylesheet" href="/public/css/<%= style %>.css">
+	<% }) %>
+<% } %>
+
+<% if (typeof scripts !== "undefined") { %>
+	<% scripts.forEach(script => { %>
+		<% if (typeof script === "string") { %>
+			<script src="/public/js/<%= script %>.js" defer></script>
+		<% } else if (Array.isArray(script)) { %>
+			<% if (script[1]) { %>
+				<script src="/public/js/<%= script[0] %>.js" defer></script>
+			<% } else { %>
+				<script src="/public/js/<%= script[0] %>.js"></script>
+			<% } %>
+		<% } %>
+	<% }) %>
+<% } %>
+
+<script src="/public/js/global.js"></script>

@@ -1,0 +1,36 @@
+[data-theme="dark"] {
+	--background: rgb(31, 30, 30);
+}
+
+body {
+	font-family: "Ubuntu", sans-serif;
+
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	font-size: 16px;
+
+	background-color: var(--background);
+}
+
+/* Fonts */
+@font-face {
+	font-family: "Ubuntu";
+	src: url("/public/assets/fonts/Ubuntu/Ubuntu-Regular.ttf") format("truetype");
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: "Ubuntu Bold";
+	src: url("/public/assets/fonts/Ubuntu/Ubuntu-Bold.ttf") format("truetype");
+	font-weight: bold;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: "Fira Code";
+	src: url("/public/assets/fonts/Fira_code/FiraCode-Regular.ttf") format("truetype");
+	font-weight: normal;
+	font-style: normal;
+}
