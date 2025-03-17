@@ -15,6 +15,8 @@ const defaultSettings: Setting[] = [
 	{ key: "random_name_length", value: "8" },
 	{ key: "enable_thumbnails", value: "true" },
 	{ key: "index_page_stats", value: "true" },
+	{ key: "instance_name", value: "Atums World" },
+	{ key: "max_avatar_size", value: "10000000" }, // 10 MB
 ];
 
 export async function createTable(reservation?: ReservedSQL): Promise<void> {

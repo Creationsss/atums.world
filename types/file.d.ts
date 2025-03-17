@@ -41,3 +41,21 @@ type Folder = {
 	created_at: string;
 	updated_at: string;
 };
+
+// Avatars
+
+type AvatarEntry = {
+	id: UUID;
+	owner: UUID;
+
+	mime_type: string;
+	extension: string;
+	size: number;
+
+	created_at: string;
+	updated_at: string;
+};
+
+type AvatarUpload = Partial<AvatarEntry> & {
+	url?: string;
+};
