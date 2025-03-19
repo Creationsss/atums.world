@@ -1,4 +1,5 @@
 const loginForm = document.getElementById("login-form");
+const registerForm = document.getElementById("register-form");
 const errorMessage = document.getElementById("error-message");
 const rememberMe = document.getElementById("remember-me");
 const emailInput = document.getElementById("email");
@@ -51,6 +52,64 @@ if (loginForm) {
 			}
 		} catch (error) {
 			console.error("Login error:", error);
+			if (errorMessage) {
+				errorMessage.style.display = "block";
+				errorMessage.textContent =
+					"An error occurred. Please try again.";
+			}
+		}
+	});
+} else if (registerForm) {
+	registerForm.addEventListener("submit", async (e) => {
+		e.preventDefault();
+
+		const email = emailInput?.value.trim();
+		const username = document.getElementById("username")?.value.trim();
+		const password = document.getElementById("password")?.value.trim();
+		const inviteCode = document.getElementById("invite-code")?.value.trim();
+
+		if (!email || !password) {
+			if (errorMessage) {
+				errorMessage.style.display = "block";
+				errorMessage.textContent = "Please enter email, password.";
+			}
+			return;
+		}
+
+		try {
+			const response = await fetch("/api/auth/register", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				credentials: "same-origin",
+				body: JSON.stringify({
+					username,
+					email,
+					password,
+					invite: inviteCode,
+				}),
+			});
+
+			const data = await response.json();
+
+			if (data.success) {
+				window.location.href = "/";
+			} else {
+				if (errorMessage) {
+					errorMessage.style.display = "block";
+
+					if (Array.isArray(data.errors)) {
+						errorMessage.innerHTML = data.errors
+							.map((err) => `<p>${err}</p>`)
+							.join("");
+					} else {
+						errorMessage.textContent =
+							data.error ||
+							"An error occurred. Please try again.";
+					}
+				}
+			}
+		} catch (error) {
+			console.error("Register error:", error);
 			if (errorMessage) {
 				errorMessage.style.display = "block";
 				errorMessage.textContent =

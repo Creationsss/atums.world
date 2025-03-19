@@ -73,9 +73,13 @@ async function handler(
 					?.count,
 			) === 0;
 
+		let inviteValid: boolean = true;
 		if (!firstUser && invite) {
 			const inviteValidation: { valid: boolean; error?: string } =
 				isValidInvite(invite);
+
+			inviteValid = inviteValidation.valid;
+
 			if (!inviteValidation.valid && inviteValidation.error) {
 				errors.push(inviteValidation.error);
 			}
@@ -103,7 +107,7 @@ async function handler(
 			errors.push("Username or email already exists");
 		}
 
-		if (invite && !firstUser) {
+		if (invite && inviteValid && !firstUser) {
 			[inviteData] =
 				await reservation`SELECT * FROM invites WHERE id = ${invite};`;
 
