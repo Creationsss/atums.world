@@ -296,7 +296,7 @@ async function processFile(
 	}
 
 	try {
-		const result: FileUpload[] = await sql`
+		const [result] = await sql`
 			INSERT INTO files ( id, owner, folder, name, original_name, mime_type, extension, size, max_views, password, favorite, tags, expires_at )
 			VALUES (
 				${uploadEntry.id}, ${uploadEntry.owner}, ${folder_identifier}, ${uploadEntry.name},
@@ -308,7 +308,7 @@ async function processFile(
 			RETURNING id;
 		`;
 
-		if (result.length === 0) {
+		if (!result) {
 			failedFiles.push({
 				reason: "Failed to create file entry",
 				file: key,

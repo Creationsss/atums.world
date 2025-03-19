@@ -49,11 +49,11 @@ async function handler(request: ExtendedRequest): Promise<Response> {
 	const reservation: ReservedSQL = await sql.reserve();
 
 	try {
-		const result: GetUser[] = isId
+		[user] = isId
 			? await reservation`SELECT * FROM users WHERE id = ${normalized}`
 			: await reservation`SELECT * FROM users WHERE username = ${normalized}`;
 
-		if (result.length === 0) {
+		if (!user) {
 			return Response.json(
 				{
 					success: false,
@@ -63,8 +63,6 @@ async function handler(request: ExtendedRequest): Promise<Response> {
 				{ status: 404 },
 			);
 		}
-
-		user = result[0];
 
 		isSelf = request.session ? user.id === request.session.id : false;
 

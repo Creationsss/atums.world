@@ -52,10 +52,10 @@ async function handler(request: ExtendedRequest): Promise<Response> {
 	let inviteData: Invite | null = null;
 
 	try {
-		const result: Invite[] =
+		[inviteData] =
 			await reservation`SELECT * FROM invites WHERE id = ${invite};`;
 
-		if (result.length === 0) {
+		if (!inviteData) {
 			return Response.json(
 				{
 					success: false,
@@ -65,8 +65,6 @@ async function handler(request: ExtendedRequest): Promise<Response> {
 				{ status: 400 },
 			);
 		}
-
-		inviteData = result[0];
 
 		if (!isAdmin && inviteData.created_by !== request.session.id) {
 			return Response.json(

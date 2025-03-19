@@ -75,13 +75,13 @@ async function handler(
 
 	let invite: Invite | null = null;
 	try {
-		const result: Invite[] = await sql`
+		[invite] = await sql`
 			INSERT INTO invites (created_by, expiration, max_uses, role, id)
 			VALUES (${request.session.id}, ${expirationDate}, ${maxUses}, ${inviteRole}, ${generateRandomString(15)})
 			RETURNING *;
 		`;
 
-		if (result.length === 0) {
+		if (!invite) {
 			logger.error("Invite failed to create");
 
 			return Response.json(
@@ -93,8 +93,6 @@ async function handler(
 				{ status: 500 },
 			);
 		}
-
-		invite = result[0];
 	} catch (error) {
 		logger.error(["Error creating invite:", error as Error]);
 

@@ -91,8 +91,7 @@ async function handler(
 		roles.push("user");
 		if (firstUser) roles.push("admin");
 
-		const result: { usernameExists: boolean; emailExists: boolean }[] =
-			await reservation`
+		const [result] = await reservation`
 				SELECT
 				EXISTS(SELECT 1 FROM users WHERE LOWER(username) = LOWER(${normalizedUsername})) AS "usernameExists",
 				EXISTS(SELECT 1 FROM users WHERE LOWER(email) = LOWER(${email})) AS "emailExists";
@@ -105,14 +104,12 @@ async function handler(
 		}
 
 		if (invite && !firstUser) {
-			const result: Invite[] =
+			[inviteData] =
 				await reservation`SELECT * FROM invites WHERE id = ${invite};`;
 
-			if (!result || result.length === 0) {
+			if (!inviteData) {
 				errors.push("Invalid invite");
 			}
-
-			inviteData = result[0];
 		}
 	} catch (error) {
 		errors.push("An error occurred while checking for existing users");
@@ -140,13 +137,13 @@ async function handler(
 			: (await getSetting("default_timezone", reservation)) || "UTC";
 
 	try {
-		const result: User[] = await reservation`
+		[user] = await reservation`
 				INSERT INTO users (username, email, password, invited_by, roles, timezone)
 				VALUES (${normalizedUsername}, ${email}, ${hashedPassword}, ${inviteData?.created_by}, ARRAY[${roles.join(",")}]::TEXT[], ${setTimezone})
 				RETURNING *;
 			`;
 
-		if (result.length === 0) {
+		if (!user) {
 			logger.error("User was not created");
 			return Response.json(
 				{
@@ -157,8 +154,6 @@ async function handler(
 				{ status: 500 },
 			);
 		}
-
-		user = result[0];
 
 		if (!user) {
 			logger.error("User was not created");
