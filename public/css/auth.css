@@ -24,7 +24,7 @@
 	justify-content: center;
 }
 
-.login-container {
+.auth-container {
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -33,24 +33,24 @@
 	background: linear-gradient(135deg, rgba(31 30 30 / 90%) 0%, rgba(45 45 45 / 90%) 100%);
 }
 
-.login-logo {
+.auth-logo {
 	margin-bottom: 2rem;
 	text-align: center;
 }
 
-.login-logo h1 {
+.auth-logo h1 {
 	font-size: 2.5rem;
 	font-weight: bold;
 	color: var(--text);
 	margin: 0;
 }
 
-.login-logo p {
+.auth-logo p {
 	color: var(--text-secondary);
 	margin-top: 0.5rem;
 }
 
-.login-card {
+.auth-card {
 	width: 100%;
 	max-width: 400px;
 	border-radius: 8px;
@@ -60,29 +60,29 @@
 	animation: fade-in 0.5s ease;
 }
 
-.login-header {
+.auth-header {
 	padding: 1.5rem;
 	background-color: rgba(0 0 0 / 10%);
 	text-align: center;
 }
 
-.login-header h2 {
+.auth-header h2 {
 	margin: 0;
 	color: var(--text);
 	font-size: 1.5rem;
 }
 
-.login-form {
+.auth-form {
 	padding: 1.5rem;
 }
 
-.login-form form {
+.auth-form form {
 	display: flex;
 	flex-direction: column;
 	width: 100%;
 }
 
-.login-register {
+.auth-toggle {
 	text-align: center;
 	margin-top: 1.5rem;
 }
@@ -105,46 +105,46 @@
 }
 
 .form-footer label {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    white-space: nowrap;
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+	white-space: nowrap;
 }
 
-.login-form button {
+.auth-form button {
 	margin-top: 1rem;
 	width: 100%;
 }
 
 .password-group {
-    position: relative;
-    width: 100%;
+	position: relative;
+	width: 100%;
 }
 
 .password-wrapper {
-    position: relative;
-    width: 100%;
+	position: relative;
+	width: 100%;
 }
 
 .password-wrapper input {
-    width: 100%;
-    padding-right: 2rem;
+	width: 100%;
+	padding-right: 2rem;
 }
 
 .toggle-password {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
-    width: 20px;
-    height: 20px;
-    fill: var(--text-secondary);
-    transition: fill 0.2s;
+	position: absolute;
+	right: 10px;
+	top: 50%;
+	transform: translateY(-50%);
+	cursor: pointer;
+	width: 20px;
+	height: 20px;
+	fill: var(--text-secondary);
+	transition: fill 0.2s;
 }
 
 .toggle-password:hover {
-    fill: var(--accent);
+	fill: var(--accent);
 }
 
 .error-message {
@@ -169,22 +169,22 @@
 	}
 }
 
-.register-link {
-    color: #57f287;
-    text-decoration: none;
-    font-weight: bold;
+.auth-link {
+	color: #57f287;
+	text-decoration: none;
+	font-weight: bold;
 }
 
-.register-link:hover {
-    text-decoration: underline;
+.auth-link:hover {
+	text-decoration: underline;
 }
 
 @media (width <= 480px) {
-	.login-card {
+	.auth-card {
 		max-width: 100%;
 	}
 
-	.login-logo h1 {
+	.auth-logo h1 {
 		font-size: 2rem;
 	}
 }
