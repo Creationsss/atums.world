@@ -48,12 +48,7 @@ async function handler(
 		);
 	}
 
-	if (
-		typeof key !== "string" ||
-		(typeof value !== "string" &&
-			typeof value !== "boolean" &&
-			typeof value !== "number")
-	) {
+	if (!["string", "boolean", "number"].includes(typeof value)) {
 		return Response.json(
 			{
 				success: false,

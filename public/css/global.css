@@ -1,5 +1,9 @@
 [data-theme="dark"] {
 	--background: rgb(31, 30, 30);
+	--background-secondary: rgb(45, 45, 45);
+	--border: rgb(31, 30, 30);
+	--text: rgb(255, 255, 255);
+	--text-secondary: rgb(255, 255, 255);
 }
 
 body {

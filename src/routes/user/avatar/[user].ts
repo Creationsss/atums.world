@@ -3,7 +3,7 @@ import { isValidUsername } from "@config/sql/users";
 import { type BunFile, type ReservedSQL, sql } from "bun";
 import { resolve } from "path";
 
-import { isUUID, nameWithoutExtension } from "@/helpers/char";
+import { getBaseUrl, isUUID, nameWithoutExtension } from "@/helpers/char";
 import { logger } from "@/helpers/logger";
 
 const routeDef: RouteDef = {
@@ -70,7 +70,13 @@ async function handler(request: ExtendedRequest): Promise<Response> {
 
 		if (json === "true" || json === "1") {
 			return Response.json(
-				{ success: true, code: 200, data: avatar },
+				{
+					success: true, code: 200,
+					avatar: {
+						...avatar,
+						url: `${getBaseUrl(request)}/user/avatar/${user.id}`,
+					}
+				},
 				{ status: 200 },
 			);
 		}

@@ -205,3 +205,23 @@ export function supportsExif(mimeType: string, extension: string): boolean {
 export function supportsThumbnail(mimeType: string): boolean {
 	return /^(image\/(?!svg+xml)|video\/)/i.test(mimeType);
 }
+
+// Commands
+export function parseArgs(): Record<string, string | boolean> {
+	const args: string[] = process.argv.slice(2);
+	const parsedArgs: Record<string, string | boolean> = {};
+
+	for (let i: number = 0; i < args.length; i++) {
+		if (args[i].startsWith("--")) {
+			const key: string = args[i].slice(2);
+			const value: string | boolean =
+				args[i + 1] && !args[i + 1].startsWith("--")
+					? args[i + 1]
+					: true;
+			parsedArgs[key] = value;
+			if (value !== true) i++;
+		}
+	}
+
+	return parsedArgs;
+}

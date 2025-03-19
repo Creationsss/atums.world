@@ -1,0 +1,27 @@
+.container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	height: 100vh;
+}
+
+.content {
+	border: 1px solid var(--border);
+	background-color: var(--background-secondary);
+
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 2rem;
+
+	width: clamp(200px, 50%, 300px);
+}
+
+.content form {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}

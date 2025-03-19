@@ -1,3 +1,4 @@
+import { getSetting } from "@config/sql/settings";
 import { renderEjsTemplate } from "@helpers/ejs";
 
 const routeDef: RouteDef = {
@@ -6,16 +7,14 @@ const routeDef: RouteDef = {
 	returns: "text/html",
 };
 
-async function handler(request: ExtendedRequest): Promise<Response> {
-	if (!request.session) {
-		return Response.redirect("/auth/login");
-	}
-
+async function handler(): Promise<Response> {
 	const ejsTemplateData: EjsTemplateData = {
 		title: "Hello, World!",
+		instance_name:
+			(await getSetting("instance_name")) || "Unnamed Instance",
 	};
 
-	return await renderEjsTemplate("index", ejsTemplateData);
+	return await renderEjsTemplate("auth/login", ejsTemplateData);
 }
 
 export { handler, routeDef };
