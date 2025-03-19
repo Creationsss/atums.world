@@ -7,7 +7,9 @@ const routeDef: RouteDef = {
 	returns: "text/html",
 };
 
-async function handler(): Promise<Response> {
+async function handler(request: ExtendedRequest): Promise<Response> {
+	if (request.session) return Response.redirect("/");
+
 	const instanceName: string =
 		(await getSetting("instance_name")) || "Unnamed Instance";
 
