@@ -8,10 +8,12 @@ const routeDef: RouteDef = {
 };
 
 async function handler(): Promise<Response> {
+	const instanceName: string =
+		(await getSetting("instance_name")) || "Unnamed Instance";
+
 	const ejsTemplateData: EjsTemplateData = {
-		title: "Hello, World!",
-		instance_name:
-			(await getSetting("instance_name")) || "Unnamed Instance",
+		title: `Login - ${instanceName}`,
+		instance_name: instanceName,
 	};
 
 	return await renderEjsTemplate("auth/login", ejsTemplateData);

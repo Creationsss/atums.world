@@ -1,40 +1,112 @@
 [data-theme="dark"] {
-	--background: rgb(31, 30, 30);
-	--background-secondary: rgb(45, 45, 45);
-	--border: rgb(31, 30, 30);
-	--text: rgb(255, 255, 255);
-	--text-secondary: rgb(255, 255, 255);
+	--background: rgb(31 30 30);
+	--background-secondary: rgb(45 45 45);
+	--border: rgb(70 70 70);
+	--text: rgb(255 255 255);
+	--text-secondary: rgb(200 200 200);
+	--accent: rgb(88 101 242);
+	--accent-hover: rgb(71 82 196);
+	--error: rgb(237 66 69);
+	--success: rgb(87 242 135);
+	--shadow: rgb(0 0 0 / 20%);
+	--card-shadow: 0 2px 10px 0 rgb(0 0 0 / 20%);
+	--input-background: rgb(55 55 55);
 }
 
 body {
-	font-family: "Ubuntu", sans-serif;
-
+	font-family: Ubuntu, sans-serif;
 	margin: 0;
 	padding: 0;
 	box-sizing: border-box;
 	font-size: 16px;
-
 	background-color: var(--background);
+	color: var(--text);
 }
 
 /* Fonts */
 @font-face {
-	font-family: "Ubuntu";
+	font-family: Ubuntu;
 	src: url("/public/assets/fonts/Ubuntu/Ubuntu-Regular.ttf") format("truetype");
 	font-weight: normal;
 	font-style: normal;
 }
 
 @font-face {
-	font-family: "Ubuntu Bold";
+	font-family: Ubuntu Bold;
 	src: url("/public/assets/fonts/Ubuntu/Ubuntu-Bold.ttf") format("truetype");
 	font-weight: bold;
 	font-style: normal;
 }
 
 @font-face {
-	font-family: "Fira Code";
+	font-family: Fira Code;
 	src: url("/public/assets/fonts/Fira_code/FiraCode-Regular.ttf") format("truetype");
 	font-weight: normal;
 	font-style: normal;
+}
+
+/* Utility classes */
+.container {
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 0 1rem;
+}
+
+/* Form elements */
+input, button, textarea, select {
+	font-family: inherit;
+	font-size: 1rem;
+	border-radius: 4px;
+	transition: all 0.2s ease;
+}
+
+button, .button {
+	cursor: pointer;
+	padding: 0.75rem 1.5rem;
+	border: none;
+	background-color: var(--accent);
+	color: white;
+	font-weight: bold;
+	border-radius: 4px;
+	transition: background-color 0.2s ease;
+}
+
+button:hover, .button:hover {
+	background-color: var(--accent-hover);
+}
+
+input, textarea, select {
+	padding: 0.75rem;
+	border: 1px solid var(--border);
+	background-color: var(--input-background);
+	color: var(--text);
+	width: 100%;
+	box-sizing: border-box;
+}
+
+input:focus, textarea:focus, select:focus {
+	outline: none;
+	border-color: var(--accent);
+	box-shadow: 0 0 0 2px rgb(88 101 242 / 30%);
+}
+
+.form-group {
+	margin-bottom: 1.5rem;
+	width: 100%;
+}
+
+.form-group label {
+	display: block;
+	margin-bottom: 0.5rem;
+	font-weight: bold;
+	color: var(--text-secondary);
+}
+
+/* Card style */
+.card {
+	background-color: var(--background-secondary);
+	border-radius: 8px;
+	box-shadow: var(--card-shadow);
+	padding: 1.5rem;
+	overflow: hidden;
 }

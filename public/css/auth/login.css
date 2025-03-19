@@ -9,13 +9,11 @@
 .content {
 	border: 1px solid var(--border);
 	background-color: var(--background-secondary);
-
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
 	padding: 2rem;
-
 	width: clamp(200px, 50%, 300px);
 }
 
@@ -24,4 +22,138 @@
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
+}
+
+.login-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	min-height: 100vh;
+	background: linear-gradient(135deg, rgba(31 30 30 / 90%) 0%, rgba(45 45 45 / 90%) 100%);
+}
+
+.login-logo {
+	margin-bottom: 2rem;
+	text-align: center;
+}
+
+.login-logo h1 {
+	font-size: 2.5rem;
+	font-weight: bold;
+	color: var(--text);
+	margin: 0;
+}
+
+.login-logo p {
+	color: var(--text-secondary);
+	margin-top: 0.5rem;
+}
+
+.login-card {
+	width: 100%;
+	max-width: 400px;
+	border-radius: 8px;
+	box-shadow: var(--card-shadow);
+	background-color: var(--background-secondary);
+	overflow: hidden;
+	animation: fade-in 0.5s ease;
+}
+
+.login-header {
+	padding: 1.5rem;
+	background-color: rgba(0 0 0 / 10%);
+	text-align: center;
+}
+
+.login-header h2 {
+	margin: 0;
+	color: var(--text);
+	font-size: 1.5rem;
+}
+
+.login-form {
+	padding: 1.5rem;
+}
+
+.login-form form {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+}
+
+.login-register {
+	text-align: center;
+	margin-top: 1.5rem;
+}
+
+.form-footer {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-top: 1rem;
+}
+
+.form-footer a {
+	color: var(--accent);
+	text-decoration: none;
+	font-size: 0.9rem;
+}
+
+.form-footer a:hover {
+	text-decoration: underline;
+}
+
+.form-footer label {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    white-space: nowrap;
+}
+
+.login-form button {
+	margin-top: 1rem;
+	width: 100%;
+}
+
+.error-message {
+	color: var(--error);
+	background-color: rgb(237 66 69 / 10%);
+	border-left: 4px solid var(--error);
+	padding: 0.75rem;
+	margin-bottom: 1rem;
+	border-radius: 4px;
+	display: none;
+}
+
+@keyframes fade-in {
+	from {
+		opacity: 0;
+		transform: translateY(-20px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.register-link {
+    color: #57f287;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.register-link:hover {
+    text-decoration: underline;
+}
+
+@media (width <= 480px) {
+	.login-card {
+		max-width: 100%;
+	}
+
+	.login-logo h1 {
+		font-size: 2rem;
+	}
 }

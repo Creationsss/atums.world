@@ -59,17 +59,26 @@ async function handler(
 	}
 
 	const errors: string[] = [];
+
 	const validations: UserValidation[] = [
-		{ check: isValidUsername(username), field: "Username" },
-		{ check: isValidEmail(email), field: "Email" },
-		{ check: isValidPassword(password), field: "Password" },
-	];
+		username
+			? { check: isValidUsername(username), field: "Username" }
+			: null,
+		email ? { check: isValidEmail(email), field: "Email" } : null,
+		password
+			? { check: isValidPassword(password), field: "Password" }
+			: null,
+	].filter(Boolean) as UserValidation[];
 
 	validations.forEach(({ check }: UserValidation): void => {
 		if (!check.valid && check.error) {
 			errors.push(check.error);
 		}
 	});
+
+	if (!username && !email) {
+		errors.push("Either a username or an email is required.");
+	}
 
 	if (errors.length > 0) {
 		return Response.json(
@@ -86,11 +95,11 @@ async function handler(
 	let user: User | null = null;
 
 	try {
-		user = await reservation`
+		[user] = await reservation`
 				SELECT * FROM users
 				WHERE (username = ${username} OR email = ${email})
 				LIMIT 1;
-			`.then((rows: User[]): User | null => rows[0]);
+			`;
 
 		if (!user) {
 			await bunPassword.verify("fake", await bunPassword.hash("fake"));

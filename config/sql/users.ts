@@ -70,6 +70,10 @@ export function isValidUsername(username: string): {
 	valid: boolean;
 	error?: string;
 } {
+	if (!username) {
+		return { valid: false, error: "" };
+	}
+
 	if (username.length < userNameRestrictions.length.min) {
 		return { valid: false, error: "Username is too short" };
 	}
@@ -89,6 +93,10 @@ export function isValidPassword(password: string): {
 	valid: boolean;
 	error?: string;
 } {
+	if (!password) {
+		return { valid: false, error: "" };
+	}
+
 	if (password.length < passwordRestrictions.length.min) {
 		return {
 			valid: false,
@@ -117,6 +125,10 @@ export function isValidEmail(email: string): {
 	valid: boolean;
 	error?: string;
 } {
+	if (!email) {
+		return { valid: false, error: "" };
+	}
+
 	if (!emailRestrictions.regex.test(email)) {
 		return { valid: false, error: "Invalid email address" };
 	}
@@ -128,6 +140,10 @@ export function isValidInvite(invite: string): {
 	valid: boolean;
 	error?: string;
 } {
+	if (!invite) {
+		return { valid: false, error: "" };
+	}
+
 	if (invite.length < inviteRestrictions.min) {
 		return {
 			valid: false,
