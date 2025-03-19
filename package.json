@@ -23,10 +23,13 @@
 		"eslint-plugin-prettier": "^5.2.3",
 		"eslint-plugin-promise": "^7.2.1",
 		"eslint-plugin-simple-import-sort": "^12.1.1",
+		"eslint-plugin-stylelint": "^0.1.1",
 		"eslint-plugin-unicorn": "^56.0.1",
 		"eslint-plugin-unused-imports": "^4.1.4",
 		"globals": "^15.15.0",
-		"prettier": "^3.5.3"
+		"prettier": "^3.5.3",
+		"stylelint": "^16.16.0",
+		"stylelint-config-standard": "^37.0.0"
 	},
 	"peerDependencies": {
 		"typescript": "^5.7.3"

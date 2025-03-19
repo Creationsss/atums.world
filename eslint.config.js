@@ -7,6 +7,7 @@ import simpleImportSort from "eslint-plugin-simple-import-sort";
 import unicorn from "eslint-plugin-unicorn";
 import unusedImports from "eslint-plugin-unused-imports";
 import globals from "globals";
+import stylelintPlugin from "stylelint";
 
 /** @type {import('eslint').Linter.FlatConfig[]} */
 export default [
@@ -127,6 +128,15 @@ export default [
 					parameter: true,
 				},
 			],
+		},
+	},
+	{
+		files: ["**/*.{css,scss,sass,less}"],
+		plugins: {
+			stylelint: stylelintPlugin,
+		},
+		rules: {
+			"stylelint/rule-name": "error",
 		},
 	},
 ];
