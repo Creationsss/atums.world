@@ -41,7 +41,7 @@ if (loginForm) {
 			const data = await response.json();
 
 			if (data.success) {
-				window.location.href = "/";
+				window.location.href = "/dashboard";
 			} else {
 				if (errorMessage) {
 					errorMessage.style.display = "block";
@@ -92,7 +92,7 @@ if (loginForm) {
 			const data = await response.json();
 
 			if (data.success) {
-				window.location.href = "/";
+				window.location.href = "/dashboard";
 			} else {
 				if (errorMessage) {
 					errorMessage.style.display = "block";

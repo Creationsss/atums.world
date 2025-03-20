@@ -1,0 +1,77 @@
+body {
+	display: flex;
+	flex-direction: row;
+}
+
+/* sidebar */
+
+/* <div class="sidebar">
+	<div class="actions">
+		<a href="/dashboard" class="action">
+			<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M1 6V15H6V11C6 9.89543 6.89543 9 8 9C9.10457 9 10 9.89543 10 11V15H15V6L8 0L1 6Z" fill=""></path> </g></svg>
+			<span>Dashboard</span>
+		</a>
+	</div>
+	<div class="user-area">
+		<img src="https://cdn5.vectorstock.com/i/1000x1000/08/19/gray-photo-placeholder-icon-design-ui-vector-35850819.jpg" alt="User avatar">
+		<div class="username">John Doe</div>
+	</div>
+</div> */
+
+.sidebar {
+	background-color: var(--background-secondary);
+	width: 220px;
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.sidebar .actions {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 100%;
+}
+
+.sidebar .actions .action {
+	display: flex;
+	align-items: center;
+	padding: 1rem;
+	height: 20px;
+	width: 100%;
+	border-radius: 4px;
+	transition: background-color 0.2s ease;
+}
+
+.sidebar .actions .action svg {
+	width: 25px;
+	height: 25px;
+}
+
+.sidebar .actions .action:hover {
+	background-color: var(--background);
+}
+
+.sidebar .user-area {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 100%;
+	border-top: 1px solid var(--border);
+    background-color: rgba(0 0 0 / 10%);
+}
+
+.sidebar .user-area img {
+	width: 100px;
+	height: 100px;
+	border-radius: 50%;
+	object-fit: cover;
+}
+
+.sidebar .user-area .username {
+	margin-top: 1rem;
+	font-weight: bold;
+	color: var(--text);
+}
