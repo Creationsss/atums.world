@@ -3,3 +3,5 @@ bun.lock
 .env
 /uploads
 .idea
+temp
+.vscode/settings.json

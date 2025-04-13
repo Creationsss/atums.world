@@ -23,7 +23,7 @@ class ServerHandler {
 		this.router = new FileSystemRouter({
 			style: "nextjs",
 			dir: "./src/routes",
-			fileExtensions: [".ts"],
+			fileExtensions: [".ts", ".tsx"],
 			origin: `http://${this.host}:${this.port}`,
 		});
 	}

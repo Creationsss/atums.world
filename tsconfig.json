@@ -14,7 +14,8 @@
 		"module": "ESNext",
 		"moduleDetection": "force",
 		"jsx": "react-jsx",
-		"allowJs": true,
+		"jsxImportSource": "preact",
+		"allowJs": false,
 		// Bundler mode
 		"moduleResolution": "bundler",
 		"allowImportingTsExtensions": true,
