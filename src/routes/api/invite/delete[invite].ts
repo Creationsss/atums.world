@@ -21,7 +21,9 @@ async function handler(request: ExtendedRequest): Promise<Response> {
 		);
 	}
 
-	const isAdmin: boolean = request.session.roles.includes("admin") || request.session.roles.includes("superadmin");
+	const isAdmin: boolean =
+		request.session.roles.includes("admin") ||
+		request.session.roles.includes("superadmin");
 	const { invite } = request.params as { invite: string };
 
 	if (!invite) {

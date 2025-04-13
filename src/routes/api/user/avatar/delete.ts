@@ -59,7 +59,9 @@ async function handler(request: ExtendedRequest): Promise<Response> {
 	}
 
 	const userID: UUID = (request.query.user as UUID) || request.session.id;
-	const isAdmin: boolean = request.session.roles.includes("admin") || request.session.roles.includes("superadmin");
+	const isAdmin: boolean =
+		request.session.roles.includes("admin") ||
+		request.session.roles.includes("superadmin");
 
 	if (request.session.id !== userID && !isAdmin) {
 		return Response.json(

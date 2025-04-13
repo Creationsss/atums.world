@@ -124,7 +124,9 @@ async function handler(
 		);
 	}
 
-	const isAdmin: boolean = request.session.roles.includes("admin") || request.session.roles.includes("superadmin");
+	const isAdmin: boolean =
+		request.session.roles.includes("admin") ||
+		request.session.roles.includes("superadmin");
 	const { query: file } = request.params as { query: string };
 	let { files } = requestBody as { files: string[] | string };
 	// const { password } = request.query as { password: string };

@@ -37,7 +37,9 @@ async function handler(
 		);
 	}
 
-	const isAdmin: boolean = request.session.roles.includes("admin") || request.session.roles.includes("superadmin");
+	const isAdmin: boolean =
+		request.session.roles.includes("admin") ||
+		request.session.roles.includes("superadmin");
 
 	if (!isAdmin && !getSetting("allow_user_invites")) {
 		return Response.json(
