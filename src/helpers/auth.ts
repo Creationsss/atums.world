@@ -7,6 +7,7 @@ export async function authByToken(
 	reservation?: ReservedSQL,
 ): Promise<ApiUserSession | null> {
 	let selfReservation = false;
+	let activeReservation: ReservedSQL | undefined = reservation;
 
 	const authorizationHeader: string | null =
 		request.headers.get("Authorization");
@@ -17,14 +18,14 @@ export async function authByToken(
 	const authorizationToken: string = authorizationHeader.slice(7).trim();
 	if (!authorizationToken || !isUUID(authorizationToken)) return null;
 
-	if (!reservation) {
-		reservation = await sql.reserve();
+	if (!activeReservation) {
+		activeReservation = await sql.reserve();
 		selfReservation = true;
 	}
 
 	try {
 		const result: User[] =
-			await reservation`SELECT * FROM users WHERE authorization_token = ${authorizationToken};`;
+			await activeReservation`SELECT * FROM users WHERE authorization_token = ${authorizationToken};`;
 
 		if (result.length === 0) return null;
 
@@ -44,7 +45,7 @@ export async function authByToken(
 		return null;
 	} finally {
 		if (selfReservation) {
-			reservation.release();
+			activeReservation.release();
 		}
 	}
 }

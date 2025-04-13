@@ -66,11 +66,11 @@ async function handler(
 		password ? { check: isValidPassword(password), field: "Password" } : null,
 	].filter(Boolean) as UserValidation[];
 
-	validations.forEach(({ check }: UserValidation): void => {
+	for (const { check } of validations) {
 		if (!check.valid && check.error) {
 			errors.push(check.error);
 		}
-	});
+	}
 
 	if (!username && !email) {
 		errors.push("Either a username or an email is required.");

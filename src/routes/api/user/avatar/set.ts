@@ -1,4 +1,4 @@
-import { resolve } from "path";
+import { resolve } from "node:path";
 import { dataType } from "@config/environment";
 import { isValidTypeOrExtension } from "@config/sql/avatars";
 import { getSetting } from "@config/sql/settings";
@@ -201,17 +201,16 @@ async function handler(
 					},
 				},
 			);
-		} else {
-			return Response.json(
-				{
-					success: true,
-					code: 200,
-					message: "Avatar uploaded",
-					url: message,
-				},
-				{ status: 200 },
-			);
 		}
+		return Response.json(
+			{
+				success: true,
+				code: 200,
+				message: "Avatar uploaded",
+				url: message,
+			},
+			{ status: 200 },
+		);
 	} catch (error) {
 		logger.error(["Error processing file:", error as Error]);
 

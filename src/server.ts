@@ -1,4 +1,4 @@
-import { resolve } from "path";
+import { resolve } from "node:path";
 import { environment } from "@config/environment";
 import { logger } from "@helpers/logger";
 import {
@@ -41,10 +41,14 @@ class ServerHandler {
 			maxRequestBodySize: 10 * 1024 * 1024 * 1024, // 10GB ? will be changed to env var soon
 		});
 
-		logger.info(
-			`Server running at http://${server.hostname}:${server.port}`,
-			true,
-		);
+		const accessUrls: string[] = [
+			`http://${server.hostname}:${server.port}`,
+			`http://localhost:${server.port}`,
+			`http://127.0.0.1:${server.port}`,
+		];
+
+		logger.info(`Server running at ${accessUrls[0]}`);
+		logger.info(`Access via: ${accessUrls[1]} or ${accessUrls[2]}`, true);
 
 		this.logRoutes();
 	}
@@ -82,10 +86,9 @@ class ServerHandler {
 				return new Response(fileContent, {
 					headers: { "Content-Type": contentType },
 				});
-			} else {
-				logger.warn(`File not found: ${filePath}`);
-				return new Response("Not Found", { status: 404 });
 			}
+			logger.warn(`File not found: ${filePath}`);
+			return new Response("Not Found", { status: 404 });
 		} catch (error) {
 			logger.error([`Error serving static file: ${pathname}`, error as Error]);
 			return new Response("Internal Server Error", { status: 500 });
@@ -93,10 +96,11 @@ class ServerHandler {
 	}
 
 	private async handleRequest(
-		request: ExtendedRequest,
+		request: Request,
 		server: BunServer,
 	): Promise<Response> {
-		request.startPerf = performance.now();
+		const extendedRequest: ExtendedRequest = request as ExtendedRequest;
+		extendedRequest.startPerf = performance.now();
 
 		const pathname: string = new URL(request.url).pathname;
 		if (pathname.startsWith("/public") || pathname === "/favicon.ico") {
@@ -185,12 +189,12 @@ class ServerHandler {
 							{ status: 406 },
 						);
 					} else {
-						request.params = params;
-						request.query = query;
-						request.actualContentType = actualContentType;
+						extendedRequest.params = params;
+						extendedRequest.query = query;
+						extendedRequest.actualContentType = actualContentType;
 
-						request.session =
-							(await authByToken(request)) ||
+						extendedRequest.session =
+							(await authByToken(extendedRequest)) ||
 							(await sessionManager.getSession(request));
 
 						response = await routeModule.handler(request, requestBody, server);
@@ -242,7 +246,7 @@ class ServerHandler {
 			`(${response.status})`,
 			[
 				request.url,
-				`${(performance.now() - request.startPerf).toFixed(2)}ms`,
+				`${(performance.now() - extendedRequest.startPerf).toFixed(2)}ms`,
 				ip || "unknown",
 			],
 			"90",

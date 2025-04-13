@@ -1,4 +1,4 @@
-import { resolve } from "path";
+import { resolve } from "node:path";
 import { dataType } from "@config/environment";
 import { getSetting } from "@config/sql/settings";
 import {
@@ -174,13 +174,9 @@ async function processFile(
 	let hashedPassword: string | null = null;
 
 	if (user_provided_password) {
-		try {
-			hashedPassword = await bunPassword.hash(user_provided_password, {
-				algorithm: "argon2id",
-			});
-		} catch (error) {
-			throw error;
-		}
+		hashedPassword = await bunPassword.hash(user_provided_password, {
+			algorithm: "argon2id",
+		});
 	}
 
 	const randomUUID: string = randomUUIDv7();
@@ -217,7 +213,7 @@ async function processFile(
 		// ? Should work not sure about non-english characters
 		const sanitizedFileName: string = rawName
 			.normalize("NFD")
-			.replace(/[\u0300-\u036f]/g, "")
+			.replace(/\p{Mn}/gu, "")
 			.replace(/[^a-zA-Z0-9._-]/g, "_")
 			.toLowerCase();
 
@@ -276,7 +272,7 @@ async function processFile(
 			return;
 		}
 	} else {
-		path = "/uploads/" + uuidWithExtension;
+		path = `/uploads/${uuidWithExtension}`;
 
 		try {
 			await s3.write(path, fileBuffer);
@@ -321,7 +317,7 @@ async function processFile(
 		return;
 	}
 
-	if (uploadEntry.password) delete uploadEntry.password;
+	if (uploadEntry.password) uploadEntry.password = undefined;
 
 	uploadEntry.url = `${userHeaderOptions.domain}/raw/${uploadEntry.name}`;
 	successfulFiles.push(uploadEntry);

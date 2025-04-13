@@ -1,13 +1,13 @@
-import type { Stats } from "fs";
+import type { Stats } from "node:fs";
 import {
 	type WriteStream,
 	createWriteStream,
 	existsSync,
 	mkdirSync,
 	statSync,
-} from "fs";
-import { EOL } from "os";
-import { basename, join } from "path";
+} from "node:fs";
+import { EOL } from "node:os";
+import { basename, join } from "node:path";
 import { environment } from "@config/environment";
 import { timestampToReadable } from "@helpers/char";
 

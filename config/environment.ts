@@ -1,4 +1,4 @@
-import { resolve } from "path";
+import { resolve } from "node:path";
 
 export const environment: Environment = {
 	port: Number.parseInt(process.env.PORT || "8080", 10),

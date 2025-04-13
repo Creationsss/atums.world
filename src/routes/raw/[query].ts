@@ -1,4 +1,4 @@
-import { resolve } from "path";
+import { resolve } from "node:path";
 import { dataType } from "@config/environment";
 import { type BunFile, type ReservedSQL, sql } from "bun";
 
@@ -115,7 +115,7 @@ async function handler(request: ExtendedRequest): Promise<Response> {
 	}
 
 	if (json === "true" || json === "1") {
-		delete fileData.password;
+		fileData.password = undefined;
 		fileData.tags = fileData.tags = fileData.tags[0]?.trim()
 			? fileData.tags[0].split(",").filter((tag: string) => tag.trim())
 			: [];

@@ -21,14 +21,14 @@ const defaultSettings: Setting[] = [
 
 export async function createTable(reservation?: ReservedSQL): Promise<void> {
 	let selfReservation = false;
+	const activeReservation: ReservedSQL = reservation ?? (await sql.reserve());
 
 	if (!reservation) {
-		reservation = await sql.reserve();
 		selfReservation = true;
 	}
 
 	try {
-		await reservation`
+		await activeReservation`
 			CREATE TABLE IF NOT EXISTS settings (
 				"key" VARCHAR(64) PRIMARY KEY NOT NULL UNIQUE,
 				"value" TEXT NOT NULL,
@@ -37,7 +37,7 @@ export async function createTable(reservation?: ReservedSQL): Promise<void> {
 			);
 		`;
 
-		const functionExists: { exists: boolean }[] = await reservation`
+		const functionExists: { exists: boolean }[] = await activeReservation`
 			SELECT EXISTS (
 				SELECT 1 FROM pg_proc
 				JOIN pg_namespace ON pg_proc.pronamespace = pg_namespace.oid
@@ -46,7 +46,7 @@ export async function createTable(reservation?: ReservedSQL): Promise<void> {
 		`;
 
 		if (!functionExists[0].exists) {
-			await reservation`
+			await activeReservation`
 				CREATE FUNCTION update_settings_updated_at()
 				RETURNS TRIGGER AS $$
 				BEGIN
@@ -57,7 +57,7 @@ export async function createTable(reservation?: ReservedSQL): Promise<void> {
 			`;
 		}
 
-		const triggerExists: { exists: boolean }[] = await reservation`
+		const triggerExists: { exists: boolean }[] = await activeReservation`
 			SELECT EXISTS (
 				SELECT 1 FROM pg_trigger
 				WHERE tgname = 'trigger_update_settings_updated_at'
@@ -65,7 +65,7 @@ export async function createTable(reservation?: ReservedSQL): Promise<void> {
 		`;
 
 		if (!triggerExists[0].exists) {
-			await reservation`
+			await activeReservation`
 				CREATE TRIGGER trigger_update_settings_updated_at
 				BEFORE UPDATE ON settings
 				FOR EACH ROW
@@ -74,7 +74,7 @@ export async function createTable(reservation?: ReservedSQL): Promise<void> {
 		}
 
 		for (const setting of defaultSettings) {
-			await reservation`
+			await activeReservation`
 				INSERT INTO settings ("key", "value")
 				VALUES (${setting.key}, ${setting.value})
 				ON CONFLICT ("key") DO NOTHING;
@@ -88,7 +88,7 @@ export async function createTable(reservation?: ReservedSQL): Promise<void> {
 		throw error;
 	} finally {
 		if (selfReservation) {
-			reservation.release();
+			activeReservation.release();
 		}
 	}
 }
@@ -100,15 +100,15 @@ export async function getSetting(
 	reservation?: ReservedSQL,
 ): Promise<string | null> {
 	let selfReservation = false;
+	const activeReservation: ReservedSQL = reservation ?? (await sql.reserve());
 
 	if (!reservation) {
-		reservation = await sql.reserve();
 		selfReservation = true;
 	}
 
 	try {
 		const result: { value: string }[] =
-			await reservation`SELECT value FROM settings WHERE "key" = ${key};`;
+			await activeReservation`SELECT value FROM settings WHERE "key" = ${key};`;
 
 		if (result.length === 0) {
 			return null;
@@ -120,7 +120,7 @@ export async function getSetting(
 		throw error;
 	} finally {
 		if (selfReservation) {
-			reservation.release();
+			activeReservation.release();
 		}
 	}
 }
@@ -131,14 +131,14 @@ export async function setSetting(
 	reservation?: ReservedSQL,
 ): Promise<void> {
 	let selfReservation = false;
+	const activeReservation: ReservedSQL = reservation ?? (await sql.reserve());
 
 	if (!reservation) {
-		reservation = await sql.reserve();
 		selfReservation = true;
 	}
 
 	try {
-		await reservation`
+		await activeReservation`
 			INSERT INTO settings ("key", "value", updated_at)
 			VALUES (${key}, ${value}, NOW())
 			ON CONFLICT ("key")
@@ -148,7 +148,7 @@ export async function setSetting(
 		throw error;
 	} finally {
 		if (selfReservation) {
-			reservation.release();
+			activeReservation.release();
 		}
 	}
 }
@@ -158,20 +158,20 @@ export async function deleteSetting(
 	reservation?: ReservedSQL,
 ): Promise<void> {
 	let selfReservation = false;
+	const activeReservation: ReservedSQL = reservation ?? (await sql.reserve());
 
 	if (!reservation) {
-		reservation = await sql.reserve();
 		selfReservation = true;
 	}
 
 	try {
-		await reservation`DELETE FROM settings WHERE "key" = ${key};`;
+		await activeReservation`DELETE FROM settings WHERE "key" = ${key};`;
 	} catch (error) {
 		logger.error(["Could not delete the setting:", error as Error]);
 		throw error;
 	} finally {
 		if (selfReservation) {
-			reservation.release();
+			activeReservation.release();
 		}
 	}
 }
@@ -180,15 +180,15 @@ export async function getAllSettings(
 	reservation?: ReservedSQL,
 ): Promise<{ key: string; value: string }[]> {
 	let selfReservation = false;
+	const activeReservation: ReservedSQL = reservation ?? (await sql.reserve());
 
 	if (!reservation) {
-		reservation = await sql.reserve();
 		selfReservation = true;
 	}
 
 	try {
 		const result: { key: string; value: string }[] =
-			await reservation`SELECT "key", "value" FROM settings;`;
+			await activeReservation`SELECT "key", "value" FROM settings;`;
 
 		return result;
 	} catch (error) {
@@ -196,7 +196,7 @@ export async function getAllSettings(
 		throw error;
 	} finally {
 		if (selfReservation) {
-			reservation.release();
+			activeReservation.release();
 		}
 	}
 }

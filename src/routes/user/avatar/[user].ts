@@ -1,4 +1,4 @@
-import { resolve } from "path";
+import { resolve } from "node:path";
 import { dataType } from "@config/environment";
 import { isValidUsername } from "@config/sql/users";
 import { type BunFile, type ReservedSQL, sql } from "bun";

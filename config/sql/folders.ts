@@ -5,14 +5,14 @@ export const order: number = 4;
 
 export async function createTable(reservation?: ReservedSQL): Promise<void> {
 	let selfReservation = false;
+	const activeReservation: ReservedSQL = reservation ?? (await sql.reserve());
 
 	if (!reservation) {
-		reservation = await sql.reserve();
 		selfReservation = true;
 	}
 
 	try {
-		await reservation`
+		await activeReservation`
 			CREATE TABLE IF NOT EXISTS folders (
 				id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 				owner UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -26,7 +26,7 @@ export async function createTable(reservation?: ReservedSQL): Promise<void> {
 			);
 		`;
 
-		const functionExists: { exists: boolean }[] = await reservation`
+		const functionExists: { exists: boolean }[] = await activeReservation`
 			SELECT EXISTS (
 				SELECT 1 FROM pg_proc
 				JOIN pg_namespace ON pg_proc.pronamespace = pg_namespace.oid
@@ -35,7 +35,7 @@ export async function createTable(reservation?: ReservedSQL): Promise<void> {
 		`;
 
 		if (!functionExists[0].exists) {
-			await reservation`
+			await activeReservation`
 				CREATE FUNCTION update_folders_updated_at()
 				RETURNS TRIGGER AS $$
 				BEGIN
@@ -46,7 +46,7 @@ export async function createTable(reservation?: ReservedSQL): Promise<void> {
 			`;
 		}
 
-		const triggerExists: { exists: boolean }[] = await reservation`
+		const triggerExists: { exists: boolean }[] = await activeReservation`
 			SELECT EXISTS (
 				SELECT 1 FROM pg_trigger
 				WHERE tgname = 'trigger_update_folders_updated_at'
@@ -54,7 +54,7 @@ export async function createTable(reservation?: ReservedSQL): Promise<void> {
 		`;
 
 		if (!triggerExists[0].exists) {
-			await reservation`
+			await activeReservation`
 				CREATE TRIGGER trigger_update_folders_updated_at
 				BEFORE UPDATE ON folders
 				FOR EACH ROW
@@ -69,7 +69,7 @@ export async function createTable(reservation?: ReservedSQL): Promise<void> {
 		throw error;
 	} finally {
 		if (selfReservation) {
-			reservation.release();
+			activeReservation.release();
 		}
 	}
 }

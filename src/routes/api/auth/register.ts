@@ -49,11 +49,11 @@ async function handler(
 		{ check: isValidPassword(password), field: "Password" },
 	];
 
-	validations.forEach(({ check }: UserValidation): void => {
+	for (const { check } of validations) {
 		if (!check.valid && check.error) {
 			errors.push(check.error);
 		}
-	});
+	}
 
 	const normalizedUsername: string = username.normalize("NFC");
 	const reservation: ReservedSQL = await sql.reserve();

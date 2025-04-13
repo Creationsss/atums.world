@@ -1,9 +1,9 @@
-import { existsSync, mkdirSync } from "fs";
-import { resolve } from "path";
+import { existsSync, mkdirSync } from "node:fs";
+import { readdir } from "node:fs/promises";
+import { resolve } from "node:path";
 import { dataType } from "@config/environment";
 import { logger } from "@helpers/logger";
 import { type ReservedSQL, s3, sql } from "bun";
-import { readdir } from "fs/promises";
 
 import { serverHandler } from "@/server";
 
@@ -39,59 +39,52 @@ async function initializeDatabase(): Promise<void> {
 
 async function main(): Promise<void> {
 	try {
-		try {
-			await sql`SELECT 1;`;
+		await sql`SELECT 1;`;
 
-			logger.info([
-				"Connected to PostgreSQL on",
-				`${process.env.PGHOST}:${process.env.PGPORT}`,
-			]);
-		} catch (error) {
-			logger.error([
-				"Could not establish a connection to PostgreSQL:",
-				error as Error,
-			]);
-			process.exit(1);
-		}
+		logger.info([
+			"Connected to PostgreSQL on",
+			`${process.env.PGHOST}:${process.env.PGPORT}`,
+		]);
+	} catch (error) {
+		logger.error([
+			"Could not establish a connection to PostgreSQL:",
+			error as Error,
+		]);
+		process.exit(1);
+	}
 
-		if (dataType.type === "local" && dataType.path) {
-			if (!existsSync(dataType.path)) {
-				try {
-					mkdirSync(dataType.path);
-				} catch (error) {
-					logger.error([
-						"Could not create datasource local directory",
-						error as Error,
-					]);
-					process.exit(1);
-				}
-			}
-
-			logger.info(["Using local datasource directory", `${dataType.path}`]);
-		} else {
+	if (dataType.type === "local" && dataType.path) {
+		if (!existsSync(dataType.path)) {
 			try {
-				await s3.write("test", "test");
-				await s3.delete("test");
-
-				logger.info([
-					"Connected to S3 with bucket",
-					`${process.env.S3_BUCKET}`,
-				]);
+				mkdirSync(dataType.path);
 			} catch (error) {
 				logger.error([
-					"Could not establish a connection to S3 bucket:",
+					"Could not create datasource local directory",
 					error as Error,
 				]);
 				process.exit(1);
 			}
 		}
 
-		await redis.initialize();
-		serverHandler.initialize();
-		await initializeDatabase();
-	} catch (error) {
-		throw error;
+		logger.info(["Using local datasource directory", `${dataType.path}`]);
+	} else {
+		try {
+			await s3.write("test", "test");
+			await s3.delete("test");
+
+			logger.info(["Connected to S3 with bucket", `${process.env.S3_BUCKET}`]);
+		} catch (error) {
+			logger.error([
+				"Could not establish a connection to S3 bucket:",
+				error as Error,
+			]);
+			process.exit(1);
+		}
 	}
+
+	await redis.initialize();
+	serverHandler.initialize();
+	await initializeDatabase();
 }
 
 main().catch((error: Error) => {

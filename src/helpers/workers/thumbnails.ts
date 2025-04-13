@@ -1,11 +1,11 @@
-import { join, resolve } from "path";
+import { join, resolve } from "node:path";
 import { dataType } from "@config/environment.ts";
 import { logger } from "@helpers/logger.ts";
 import { type BunFile, s3, sql } from "bun";
 import ffmpeg from "fluent-ffmpeg";
 import imageThumbnail from "image-thumbnail";
 
-declare var self: Worker;
+declare let self: Worker;
 
 async function generateVideoThumbnail(
 	filePath: string,
@@ -47,37 +47,34 @@ async function generateImageThumbnail(
 	thumbnailPath: string,
 ): Promise<ArrayBuffer> {
 	return new Promise(
-		async (
+		(
 			resolve: (value: ArrayBuffer) => void,
 			reject: (reason: Error) => void,
-		) => {
-			try {
-				const options: {
-					responseType: "buffer";
-					height: number;
-					jpegOptions: {
-						force: boolean;
-						quality: number;
-					};
-				} = {
-					height: 320,
-					responseType: "buffer",
-					jpegOptions: {
-						force: true,
-						quality: 60,
-					},
-				};
+		): void => {
+			const options = {
+				height: 320,
+				responseType: "buffer" as const,
+				jpegOptions: {
+					force: true,
+					quality: 60,
+				},
+			};
 
-				const thumbnailBuffer: Buffer = await imageThumbnail(filePath, options);
-
-				await Bun.write(thumbnailPath, thumbnailBuffer.buffer);
-				resolve(await Bun.file(thumbnailPath).arrayBuffer());
-
-				await Bun.file(filePath).unlink();
-				await Bun.file(thumbnailPath).unlink();
-			} catch (error) {
-				reject(error as Error);
-			}
+			imageThumbnail(filePath, options)
+				.then(
+					(thumbnailBuffer: Buffer): Promise<ArrayBuffer> =>
+						Bun.write(thumbnailPath, thumbnailBuffer.buffer).then(
+							(): Promise<ArrayBuffer> => Bun.file(thumbnailPath).arrayBuffer(),
+						),
+				)
+				.then((arrayBuffer: ArrayBuffer) => {
+					resolve(arrayBuffer);
+					return Promise.all([
+						Bun.file(filePath).unlink(),
+						Bun.file(thumbnailPath).unlink(),
+					]);
+				})
+				.catch(reject);
 		},
 	);
 }

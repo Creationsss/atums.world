@@ -50,7 +50,7 @@ class SessionManager {
 
 		const userSessions: string[] = await redis
 			.getInstance()
-			.keys("session:*:" + token);
+			.keys(`session:*:${token}`);
 		if (!userSessions.length) return null;
 
 		const sessionData: unknown = await redis
@@ -76,7 +76,7 @@ class SessionManager {
 
 		const userSessions: string[] = await redis
 			.getInstance()
-			.keys("session:*:" + token);
+			.keys(`session:*:${token}`);
 		if (!userSessions.length) throw new Error("Session not found or expired");
 
 		const sessionKey: string = userSessions[0];
@@ -96,7 +96,7 @@ class SessionManager {
 	public async verifySession(token: string): Promise<UserSession> {
 		const userSessions: string[] = await redis
 			.getInstance()
-			.keys("session:*:" + token);
+			.keys(`session:*:${token}`);
 		if (!userSessions.length) throw new Error("Session not found or expired");
 
 		const sessionData: unknown = await redis
@@ -122,7 +122,7 @@ class SessionManager {
 
 		const userSessions: string[] = await redis
 			.getInstance()
-			.keys("session:*:" + token);
+			.keys(`session:*:${token}`);
 		if (!userSessions.length) return;
 
 		await redis.getInstance().delete("JSON", userSessions[0]);

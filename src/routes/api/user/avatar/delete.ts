@@ -1,4 +1,4 @@
-import { resolve } from "path";
+import { resolve } from "node:path";
 import { dataType } from "@config/environment";
 import { s3, sql } from "bun";
 
@@ -113,16 +113,15 @@ async function handler(request: ExtendedRequest): Promise<Response> {
 					},
 				},
 			);
-		} else {
-			return Response.json(
-				{
-					success: true,
-					code: 200,
-					message: "Avatar deleted",
-				},
-				{ status: 200 },
-			);
 		}
+		return Response.json(
+			{
+				success: true,
+				code: 200,
+				message: "Avatar deleted",
+			},
+			{ status: 200 },
+		);
 	} catch (error) {
 		logger.error(["Error processing delete request:", error as Error]);
 

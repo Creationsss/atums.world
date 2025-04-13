@@ -24,8 +24,7 @@ import { type ReservedSQL, sql } from "bun";
 				error.message.includes("foreign key constraint")
 			) {
 				console.error(
-					`Could not clear table "${table}" due to foreign key constraints.\n` +
-						"Try using --cascade if you want to remove dependent records.",
+					`Could not clear table "${table}" due to foreign key constraints.\nTry using --cascade if you want to remove dependent records.`,
 				);
 			} else {
 				console.error("Could not clear table:", error);

@@ -110,9 +110,9 @@ async function handler(request: ExtendedRequest): Promise<Response> {
 		);
 	}
 
-	delete user.password;
-	delete user.authorization_token;
-	if (!isSelf) delete user.email;
+	user.password = undefined;
+	user.authorization_token = undefined;
+	if (!isSelf) user.email = undefined;
 
 	user.roles = user.roles ? user.roles[0].split(",") : [];
 

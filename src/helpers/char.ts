@@ -2,8 +2,8 @@ import { DateTime } from "luxon";
 
 export function timestampToReadable(timestamp?: number): string {
 	const date: Date =
-		timestamp && !isNaN(timestamp) ? new Date(timestamp) : new Date();
-	if (isNaN(date.getTime())) return "Invalid Date";
+		timestamp && !Number.isNaN(timestamp) ? new Date(timestamp) : new Date();
+	if (Number.isNaN(date.getTime())) return "Invalid Date";
 	return date.toISOString().replace("T", " ").replace("Z", "");
 }
 
@@ -84,15 +84,13 @@ export function isValidTimezone(timezone: string): boolean {
 }
 
 export function generateRandomString(length?: number): string {
-	if (!length) {
-		length = length || Math.floor(Math.random() * 10) + 5;
-	}
+	const finalLength: number = length ?? Math.floor(Math.random() * 10) + 5;
 
-	const characters: string =
+	const characters =
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 	let result = "";
 
-	for (let i = 0; i < length; i++) {
+	for (let i = 0; i < finalLength; i++) {
 		result += characters.charAt(Math.floor(Math.random() * characters.length));
 	}
 

@@ -5,14 +5,14 @@ export const order: number = 3;
 
 export async function createTable(reservation?: ReservedSQL): Promise<void> {
 	let selfReservation = false;
+	const activeReservation: ReservedSQL = reservation ?? (await sql.reserve());
 
 	if (!reservation) {
-		reservation = await sql.reserve();
 		selfReservation = true;
 	}
 
 	try {
-		await reservation`
+		await activeReservation`
 			CREATE TABLE IF NOT EXISTS invites (
 				id TEXT PRIMARY KEY NOT NULL UNIQUE,
 				created_by UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -27,7 +27,7 @@ export async function createTable(reservation?: ReservedSQL): Promise<void> {
 		throw error;
 	} finally {
 		if (selfReservation) {
-			reservation.release();
+			activeReservation.release();
 		}
 	}
 }

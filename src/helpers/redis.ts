@@ -86,12 +86,12 @@ class RedisJson {
 				}
 
 				return value;
-			} else if (type === "STRING") {
+			}
+			if (type === "STRING") {
 				const value: string | null = await this.client.get(key);
 				return value;
-			} else {
-				throw new Error(`Invalid type: ${type}`);
 			}
+			throw new Error(`Invalid type: ${type}`);
 		} catch (error) {
 			logger.error(`Error getting value from Redis for key: ${key}`);
 			logger.error(error as Error);
