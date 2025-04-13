@@ -1,9 +1,9 @@
+import { join, resolve } from "path";
 import { dataType } from "@config/environment.ts";
 import { logger } from "@helpers/logger.ts";
 import { type BunFile, s3, sql } from "bun";
 import ffmpeg from "fluent-ffmpeg";
 import imageThumbnail from "image-thumbnail";
-import { join, resolve } from "path";
 
 declare var self: Worker;
 
@@ -22,10 +22,7 @@ async function generateVideoThumbnail(
 				.format("mjpeg")
 				.output(thumbnailPath)
 				.on("error", (error: Error) => {
-					logger.error([
-						"failed to generate thumbnail",
-						error as Error,
-					]);
+					logger.error(["failed to generate thumbnail", error as Error]);
 					reject(error);
 				})
 
@@ -71,10 +68,7 @@ async function generateImageThumbnail(
 					},
 				};
 
-				const thumbnailBuffer: Buffer = await imageThumbnail(
-					filePath,
-					options,
-				);
+				const thumbnailBuffer: Buffer = await imageThumbnail(filePath, options);
 
 				await Bun.write(thumbnailPath, thumbnailBuffer.buffer);
 				resolve(await Bun.file(thumbnailPath).arrayBuffer());
@@ -104,20 +98,14 @@ async function createThumbnails(files: FileEntry[]): Promise<void> {
 			try {
 				fileArrayBuffer = await Bun.file(filePath).arrayBuffer();
 			} catch {
-				logger.error([
-					"Could not generate thumbnail for file:",
-					fileName,
-				]);
+				logger.error(["Could not generate thumbnail for file:", fileName]);
 				continue;
 			}
 		} else {
 			try {
 				fileArrayBuffer = await s3.file(fileName).arrayBuffer();
 			} catch {
-				logger.error([
-					"Could not generate thumbnail for file:",
-					fileName,
-				]);
+				logger.error(["Could not generate thumbnail for file:", fileName]);
 				continue;
 			}
 		}
@@ -149,10 +137,7 @@ async function createThumbnails(files: FileEntry[]): Promise<void> {
 				: await generateImageThumbnail(tempFilePath, tempThumbnailPath);
 
 			if (!thumbnailArrayBuffer) {
-				logger.error([
-					"Could not generate thumbnail for file:",
-					fileName,
-				]);
+				logger.error(["Could not generate thumbnail for file:", fileName]);
 				continue;
 			}
 

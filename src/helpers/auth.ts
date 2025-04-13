@@ -6,7 +6,7 @@ export async function authByToken(
 	request: ExtendedRequest,
 	reservation?: ReservedSQL,
 ): Promise<ApiUserSession | null> {
-	let selfReservation: boolean = false;
+	let selfReservation = false;
 
 	const authorizationHeader: string | null =
 		request.headers.get("Authorization");

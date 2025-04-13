@@ -45,8 +45,7 @@ class SessionManager {
 		const cookie: string | null = request.headers.get("Cookie");
 		if (!cookie) return null;
 
-		const token: string | null =
-			cookie.match(/session=([^;]+)/)?.[1] || null;
+		const token: string | null = cookie.match(/session=([^;]+)/)?.[1] || null;
 		if (!token) return null;
 
 		const userSessions: string[] = await redis
@@ -72,15 +71,13 @@ class SessionManager {
 		const cookie: string | null = request.headers.get("Cookie");
 		if (!cookie) throw new Error("No session found in request");
 
-		const token: string | null =
-			cookie.match(/session=([^;]+)/)?.[1] || null;
+		const token: string | null = cookie.match(/session=([^;]+)/)?.[1] || null;
 		if (!token) throw new Error("Session token not found");
 
 		const userSessions: string[] = await redis
 			.getInstance()
 			.keys("session:*:" + token);
-		if (!userSessions.length)
-			throw new Error("Session not found or expired");
+		if (!userSessions.length) throw new Error("Session not found or expired");
 
 		const sessionKey: string = userSessions[0];
 
@@ -100,8 +97,7 @@ class SessionManager {
 		const userSessions: string[] = await redis
 			.getInstance()
 			.keys("session:*:" + token);
-		if (!userSessions.length)
-			throw new Error("Session not found or expired");
+		if (!userSessions.length) throw new Error("Session not found or expired");
 
 		const sessionData: unknown = await redis
 			.getInstance()
@@ -121,8 +117,7 @@ class SessionManager {
 		const cookie: string | null = request.headers.get("Cookie");
 		if (!cookie) return;
 
-		const token: string | null =
-			cookie.match(/session=([^;]+)/)?.[1] || null;
+		const token: string | null = cookie.match(/session=([^;]+)/)?.[1] || null;
 		if (!token) return;
 
 		const userSessions: string[] = await redis
@@ -152,7 +147,7 @@ class SessionManager {
 			domain,
 		} = options || {};
 
-		let cookie: string = `session=${encodeURIComponent(token)}; Path=${path}; Max-Age=${maxAge}`;
+		let cookie = `session=${encodeURIComponent(token)}; Path=${path}; Max-Age=${maxAge}`;
 
 		if (httpOnly) cookie += "; HttpOnly";
 
@@ -173,7 +168,7 @@ class SessionManager {
 		}
 
 		const [, value, unit] = match;
-		const num: number = parseInt(value, 10);
+		const num: number = Number.parseInt(value, 10);
 
 		switch (unit) {
 			case "s":

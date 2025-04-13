@@ -1,9 +1,8 @@
 {
-    "recommendations": [
+	"recommendations": [
 		"mikestead.dotenv",
 		"EditorConfig.EditorConfig",
 		"leonzalion.vscode-ejs",
-		"dbaeumer.vscode-eslint",
-		"stylelint.vscode-stylelint"
-    ]
+		"biomejs.biome"
+	]
 }

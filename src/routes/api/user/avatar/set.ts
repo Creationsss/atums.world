@@ -1,8 +1,8 @@
+import { resolve } from "path";
 import { dataType } from "@config/environment";
 import { isValidTypeOrExtension } from "@config/sql/avatars";
 import { getSetting } from "@config/sql/settings";
 import { s3, sql } from "bun";
-import { resolve } from "path";
 
 import { getBaseUrl, getExtension } from "@/helpers/char";
 import { logger } from "@/helpers/logger";
@@ -50,10 +50,7 @@ async function processFile(
 					await s3.delete(`/avatars/${existingFileName}`);
 				}
 			} catch (error) {
-				logger.error([
-					"Error deleting existing avatar file:",
-					error as Error,
-				]);
+				logger.error(["Error deleting existing avatar file:", error as Error]);
 			}
 		}
 
@@ -138,9 +135,7 @@ async function handler(
 	}
 
 	const file: File | null =
-		(formData.get("file") as File) ||
-		(formData.get("avatar") as File) ||
-		null;
+		(formData.get("file") as File) || (formData.get("avatar") as File) || null;
 
 	if (!file.type || file.type === "") {
 		return Response.json(

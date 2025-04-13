@@ -13,6 +13,7 @@ async function handler(request: ExtendedRequest): Promise<Response> {
 
 	const ejsTemplateData: EjsTemplateData = {
 		title: "Hello, World!",
+		active: "dashboard",
 	};
 
 	return await renderEjsTemplate("dashboard/index.ejs", ejsTemplateData);

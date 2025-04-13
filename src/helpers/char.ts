@@ -48,7 +48,7 @@ export function parseDuration(input: string): DurationObject {
 	};
 
 	for (const match of matches) {
-		const value: number = parseInt(match[1], 10);
+		const value: number = Number.parseInt(match[1], 10);
 		const unit: string = match[2];
 
 		switch (unit) {
@@ -90,12 +90,10 @@ export function generateRandomString(length?: number): string {
 
 	const characters: string =
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-	let result: string = "";
+	let result = "";
 
-	for (let i: number = 0; i < length; i++) {
-		result += characters.charAt(
-			Math.floor(Math.random() * characters.length),
-		);
+	for (let i = 0; i < length; i++) {
+		result += characters.charAt(Math.floor(Math.random() * characters.length));
 	}
 
 	return result;
@@ -172,9 +170,7 @@ export function nameWithoutExtension(fileName: string): string {
 	if (lastDotIndex <= 0) return fileName;
 
 	const ext: string = fileName.slice(lastDotIndex + 1).toLowerCase();
-	return knownExtensions.has(ext)
-		? fileName.slice(0, lastDotIndex)
-		: fileName;
+	return knownExtensions.has(ext) ? fileName.slice(0, lastDotIndex) : fileName;
 }
 
 export function supportsExif(mimeType: string, extension: string): boolean {
@@ -211,13 +207,11 @@ export function parseArgs(): Record<string, string | boolean> {
 	const args: string[] = process.argv.slice(2);
 	const parsedArgs: Record<string, string | boolean> = {};
 
-	for (let i: number = 0; i < args.length; i++) {
+	for (let i = 0; i < args.length; i++) {
 		if (args[i].startsWith("--")) {
 			const key: string = args[i].slice(2);
 			const value: string | boolean =
-				args[i + 1] && !args[i + 1].startsWith("--")
-					? args[i + 1]
-					: true;
+				args[i + 1] && !args[i + 1].startsWith("--") ? args[i + 1] : true;
 			parsedArgs[key] = value;
 			if (value !== true) i++;
 		}

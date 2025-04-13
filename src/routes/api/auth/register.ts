@@ -5,7 +5,7 @@ import {
 	isValidPassword,
 	isValidUsername,
 } from "@config/sql/users";
-import { password as bunPassword, type ReservedSQL, sql } from "bun";
+import { type ReservedSQL, password as bunPassword, sql } from "bun";
 
 import { isValidTimezone } from "@/helpers/char";
 import { logger } from "@/helpers/logger";
@@ -57,9 +57,9 @@ async function handler(
 
 	const normalizedUsername: string = username.normalize("NFC");
 	const reservation: ReservedSQL = await sql.reserve();
-	let firstUser: boolean = false;
+	let firstUser = false;
 	let inviteData: Invite | null = null;
-	let roles: string[] = [];
+	const roles: string[] = [];
 
 	try {
 		const registrationEnabled: boolean =
@@ -69,11 +69,10 @@ async function handler(
 
 		firstUser =
 			Number(
-				(await reservation`SELECT COUNT(*) AS count FROM users;`)[0]
-					?.count,
+				(await reservation`SELECT COUNT(*) AS count FROM users;`)[0]?.count,
 			) === 0;
 
-		let inviteValid: boolean = true;
+		let inviteValid = true;
 		if (!firstUser && invite) {
 			const inviteValidation: { valid: boolean; error?: string } =
 				isValidInvite(invite);
@@ -184,10 +183,7 @@ async function handler(
 			if (inviteData?.role) roles.push(inviteData.role);
 		}
 	} catch (error) {
-		logger.error([
-			"Error inserting user into the database:",
-			error as Error,
-		]);
+		logger.error(["Error inserting user into the database:", error as Error]);
 		return Response.json(
 			{
 				success: false,

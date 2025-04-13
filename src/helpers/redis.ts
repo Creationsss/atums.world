@@ -1,6 +1,6 @@
 import { redisConfig } from "@config/environment";
 import { logger } from "@helpers/logger";
-import { createClient, type RedisClientType } from "redis";
+import { type RedisClientType, createClient } from "redis";
 
 class RedisJson {
 	private static instance: RedisJson | null = null;
@@ -21,11 +21,7 @@ class RedisJson {
 			});
 
 			RedisJson.instance.client.on("error", (err: Error) => {
-				logger.error([
-					"Error connecting to Redis:",
-					err,
-					redisConfig.host,
-				]);
+				logger.error(["Error connecting to Redis:", err, redisConfig.host]);
 
 				process.exit(1);
 			});
@@ -167,10 +163,7 @@ class RedisJson {
 		try {
 			await this.client.expire(key, seconds);
 		} catch (error) {
-			logger.error([
-				`Error expiring key in Redis: ${key}`,
-				error as Error,
-			]);
+			logger.error([`Error expiring key in Redis: ${key}`, error as Error]);
 			throw error;
 		}
 	}

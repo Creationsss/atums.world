@@ -1,4 +1,4 @@
-import { type ReservedSQL, sql, type SQLQuery } from "bun";
+import { type ReservedSQL, type SQLQuery, sql } from "bun";
 
 import { isUUID } from "@/helpers/char";
 import { logger } from "@/helpers/logger";
@@ -107,24 +107,21 @@ async function handler(request: ExtendedRequest): Promise<Response> {
 		);
 	}
 
-	const safeCount: number = Math.min(parseInt(count) || 25, 100);
-	const safePage: number = Math.max(parseInt(page) || 0, 0);
+	const safeCount: number = Math.min(Number.parseInt(count) || 25, 100);
+	const safePage: number = Math.max(Number.parseInt(page) || 0, 0);
 	const offset: number = safePage * safeCount;
 	const sortColumn: string = sort_by || "created_at";
 	const order: "ASC" | "DESC" = validSortOrder(sort_order) as "ASC" | "DESC";
 	const safeSearchValue: string = escapeLike(search_value || "");
 
 	let files: FileEntry[];
-	let totalPages: number = 0;
-	let totalFiles: number = 0;
+	let totalPages = 0;
+	let totalFiles = 0;
 	const reservation: ReservedSQL = await sql.reserve();
 
 	try {
 		// ! i really dont understand why bun wont accept reservation(order)`
-		function orderBy(
-			field_name: string,
-			orderBy: "ASC" | "DESC",
-		): SQLQuery {
+		function orderBy(field_name: string, orderBy: "ASC" | "DESC"): SQLQuery {
 			return reservation`ORDER BY ${reservation(field_name)} ${orderBy === "ASC" ? reservation`ASC` : reservation`DESC`}`;
 		}
 

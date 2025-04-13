@@ -1,9 +1,9 @@
+import { existsSync, mkdirSync } from "fs";
+import { resolve } from "path";
 import { dataType } from "@config/environment";
 import { logger } from "@helpers/logger";
 import { type ReservedSQL, s3, sql } from "bun";
-import { existsSync, mkdirSync } from "fs";
 import { readdir } from "fs/promises";
-import { resolve } from "path";
 
 import { serverHandler } from "@/server";
 
@@ -17,9 +17,7 @@ async function initializeDatabase(): Promise<void> {
 		files
 			.filter((file: string): boolean => file.endsWith(".ts"))
 			.map(async (file: string): Promise<Module> => {
-				const module: Module["module"] = await import(
-					resolve(sqlDir, file)
-				);
+				const module: Module["module"] = await import(resolve(sqlDir, file));
 				return { file, module };
 			}),
 	);
@@ -69,10 +67,7 @@ async function main(): Promise<void> {
 				}
 			}
 
-			logger.info([
-				"Using local datasource directory",
-				`${dataType.path}`,
-			]);
+			logger.info(["Using local datasource directory", `${dataType.path}`]);
 		} else {
 			try {
 				await s3.write("test", "test");

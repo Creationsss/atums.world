@@ -4,7 +4,7 @@ import { type ReservedSQL, sql } from "bun";
 export const order: number = 5;
 
 export async function createTable(reservation?: ReservedSQL): Promise<void> {
-	let selfReservation: boolean = false;
+	let selfReservation = false;
 
 	if (!reservation) {
 		reservation = await sql.reserve();

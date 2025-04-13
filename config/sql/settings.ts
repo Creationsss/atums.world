@@ -20,7 +20,7 @@ const defaultSettings: Setting[] = [
 ];
 
 export async function createTable(reservation?: ReservedSQL): Promise<void> {
-	let selfReservation: boolean = false;
+	let selfReservation = false;
 
 	if (!reservation) {
 		reservation = await sql.reserve();
@@ -99,7 +99,7 @@ export async function getSetting(
 	key: string,
 	reservation?: ReservedSQL,
 ): Promise<string | null> {
-	let selfReservation: boolean = false;
+	let selfReservation = false;
 
 	if (!reservation) {
 		reservation = await sql.reserve();
@@ -130,7 +130,7 @@ export async function setSetting(
 	value: string,
 	reservation?: ReservedSQL,
 ): Promise<void> {
-	let selfReservation: boolean = false;
+	let selfReservation = false;
 
 	if (!reservation) {
 		reservation = await sql.reserve();
@@ -157,7 +157,7 @@ export async function deleteSetting(
 	key: string,
 	reservation?: ReservedSQL,
 ): Promise<void> {
-	let selfReservation: boolean = false;
+	let selfReservation = false;
 
 	if (!reservation) {
 		reservation = await sql.reserve();
@@ -179,7 +179,7 @@ export async function deleteSetting(
 export async function getAllSettings(
 	reservation?: ReservedSQL,
 ): Promise<{ key: string; value: string }[]> {
-	let selfReservation: boolean = false;
+	let selfReservation = false;
 
 	if (!reservation) {
 		reservation = await sql.reserve();

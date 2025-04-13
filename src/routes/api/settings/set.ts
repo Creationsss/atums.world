@@ -53,7 +53,8 @@ async function handler(
 			{
 				success: false,
 				code: 400,
-				error: "Expected key to be a string and value to be a string, boolean, or number",
+				error:
+					"Expected key to be a string and value to be a string, boolean, or number",
 			},
 			{ status: 400 },
 		);

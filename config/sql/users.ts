@@ -4,7 +4,7 @@ import { type ReservedSQL, sql } from "bun";
 export const order: number = 1;
 
 export async function createTable(reservation?: ReservedSQL): Promise<void> {
-	let selfReservation: boolean = false;
+	let selfReservation = false;
 
 	if (!reservation) {
 		reservation = await sql.reserve();
@@ -114,7 +114,8 @@ export function isValidPassword(password: string): {
 	if (!passwordRestrictions.regex.test(password)) {
 		return {
 			valid: false,
-			error: "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
+			error:
+				"Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
 		};
 	}
 

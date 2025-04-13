@@ -18,8 +18,7 @@ if (loginForm) {
 		if (!email || !password) {
 			if (errorMessage) {
 				errorMessage.style.display = "block";
-				errorMessage.textContent =
-					"Please enter both email and password.";
+				errorMessage.textContent = "Please enter both email and password.";
 			}
 			return;
 		}
@@ -46,16 +45,14 @@ if (loginForm) {
 				if (errorMessage) {
 					errorMessage.style.display = "block";
 					errorMessage.textContent =
-						data.error ||
-						"Invalid email or password. Please try again.";
+						data.error || "Invalid email or password. Please try again.";
 				}
 			}
 		} catch (error) {
 			console.error("Login error:", error);
 			if (errorMessage) {
 				errorMessage.style.display = "block";
-				errorMessage.textContent =
-					"An error occurred. Please try again.";
+				errorMessage.textContent = "An error occurred. Please try again.";
 			}
 		}
 	});
@@ -103,8 +100,7 @@ if (loginForm) {
 							.join("");
 					} else {
 						errorMessage.textContent =
-							data.error ||
-							"An error occurred. Please try again.";
+							data.error || "An error occurred. Please try again.";
 					}
 				}
 			}
@@ -112,8 +108,7 @@ if (loginForm) {
 			console.error("Register error:", error);
 			if (errorMessage) {
 				errorMessage.style.display = "block";
-				errorMessage.textContent =
-					"An error occurred. Please try again.";
+				errorMessage.textContent = "An error occurred. Please try again.";
 			}
 		}
 	});

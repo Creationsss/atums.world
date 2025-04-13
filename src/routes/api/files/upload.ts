@@ -1,15 +1,15 @@
+import { resolve } from "path";
 import { dataType } from "@config/environment";
 import { getSetting } from "@config/sql/settings";
 import {
+	type SQLQuery,
 	password as bunPassword,
 	randomUUIDv7,
 	s3,
 	sql,
-	type SQLQuery,
 } from "bun";
 import { exiftool } from "exiftool-vendored";
 import { DateTime } from "luxon";
-import { resolve } from "path";
 
 import {
 	generateRandomString,
@@ -97,9 +97,7 @@ async function removeExifData(
 			LocationName: null,
 		};
 
-		await exiftool.write(tempInputPath, tagsToRemove, [
-			"-overwrite_original",
-		]);
+		await exiftool.write(tempInputPath, tagsToRemove, ["-overwrite_original"]);
 
 		return await Bun.file(tempInputPath).arrayBuffer();
 	} catch (error) {
@@ -161,9 +159,9 @@ async function processFile(
 	};
 
 	const extension: string | null = getExtension(file.name);
-	let rawName: string | null = nameWithoutExtension(file.name);
+	const rawName: string | null = nameWithoutExtension(file.name);
 	const maxViews: number | null =
-		parseInt(user_provided_max_views, 10) || null;
+		Number.parseInt(user_provided_max_views, 10) || null;
 
 	if (!rawName) {
 		failedFiles.push({
@@ -190,7 +188,7 @@ async function processFile(
 		? user_provided_tags
 		: (user_provided_tags?.split(/[, ]+/).filter(Boolean) ?? []);
 
-	let uploadEntry: FileUpload = {
+	const uploadEntry: FileUpload = {
 		id: randomUUID as UUID,
 		owner: session.id as UUID,
 		name: rawName,
@@ -201,9 +199,7 @@ async function processFile(
 		password: hashedPassword,
 		favorite: user_wants_favorite === "true" || user_wants_favorite === "1",
 		tags: tags,
-		expires_at: delete_short_string
-			? getNewTimeUTC(delete_short_string)
-			: null,
+		expires_at: delete_short_string ? getNewTimeUTC(delete_short_string) : null,
 	};
 
 	if (name_format === "date") {
@@ -366,9 +362,7 @@ async function handler(request: ExtendedRequest): Promise<Response> {
 		requestBody.append(
 			"file",
 			new Blob([body], { type: request.actualContentType }),
-			request.actualContentType === "text/plain"
-				? "file.txt"
-				: "file.json",
+			request.actualContentType === "text/plain" ? "file.txt" : "file.json",
 		);
 	} else {
 		return Response.json(
@@ -442,20 +436,16 @@ async function handler(request: ExtendedRequest): Promise<Response> {
 	}
 
 	const filesThatSupportThumbnails: FileUpload[] = successfulFiles.filter(
-		(file: FileUpload): boolean =>
-			supportsThumbnail(file.mime_type as string),
+		(file: FileUpload): boolean => supportsThumbnail(file.mime_type as string),
 	);
 	if (
 		(await getSetting("enable_thumbnails")) === "true" &&
 		filesThatSupportThumbnails.length > 0
 	) {
 		try {
-			const worker: Worker = new Worker(
-				"./src/helpers/workers/thumbnails.ts",
-				{
-					type: "module",
-				},
-			);
+			const worker: Worker = new Worker("./src/helpers/workers/thumbnails.ts", {
+				type: "module",
+			});
 			worker.postMessage({
 				files: filesThatSupportThumbnails,
 			});

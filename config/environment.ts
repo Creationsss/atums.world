@@ -1,11 +1,10 @@
 import { resolve } from "path";
 
 export const environment: Environment = {
-	port: parseInt(process.env.PORT || "8080", 10),
+	port: Number.parseInt(process.env.PORT || "8080", 10),
 	host: process.env.HOST || "0.0.0.0",
 	development:
-		process.env.NODE_ENV === "development" ||
-		process.argv.includes("--dev"),
+		process.env.NODE_ENV === "development" || process.argv.includes("--dev"),
 };
 
 export const redisConfig: {
@@ -15,7 +14,7 @@ export const redisConfig: {
 	password?: string | undefined;
 } = {
 	host: process.env.REDIS_HOST || "localhost",
-	port: parseInt(process.env.REDIS_PORT || "6379", 10),
+	port: Number.parseInt(process.env.REDIS_PORT || "6379", 10),
 	username: process.env.REDIS_USERNAME || undefined,
 	password: process.env.REDIS_PASSWORD || undefined,
 };

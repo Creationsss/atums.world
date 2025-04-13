@@ -1,46 +1,36 @@
 {
-	"name": "bun_frontend_template",
+	"name": "atums.world",
+	"private": true,
 	"module": "src/index.ts",
 	"type": "module",
 	"scripts": {
 		"start": "bun run src/index.ts",
-		"dev": "bun run --watch src/index.ts --dev",
-		"lint": "eslint",
-		"lint:fix": "bun lint --fix",
+		"dev": "bun run --hot src/index.ts --dev",
+		"lint": "bunx biome check",
+		"lint:fix": "bunx biome check --fix",
 		"cleanup": "rm -rf logs node_modules bun.lockdb",
 		"clearTable": "bun run src/helpers/commands/clearTable.ts"
 	},
 	"devDependencies": {
-		"@eslint/js": "^9.22.0",
-		"@types/bun": "^1.2.5",
+		"@biomejs/biome": "^1.9.4",
+		"@types/bun": "^1.2.9",
 		"@types/ejs": "^3.1.5",
 		"@types/fluent-ffmpeg": "^2.1.27",
 		"@types/image-thumbnail": "^1.0.4",
-		"@types/luxon": "^3.4.2",
-		"@typescript-eslint/eslint-plugin": "^8.26.1",
-		"@typescript-eslint/parser": "^8.26.1",
-		"eslint": "^9.22.0",
-		"eslint-plugin-prettier": "^5.2.3",
-		"eslint-plugin-promise": "^7.2.1",
-		"eslint-plugin-simple-import-sort": "^12.1.1",
-		"eslint-plugin-stylelint": "^0.1.1",
-		"eslint-plugin-unicorn": "^56.0.1",
-		"eslint-plugin-unused-imports": "^4.1.4",
-		"globals": "^15.15.0",
-		"prettier": "^3.5.3",
-		"stylelint": "^16.16.0",
-		"stylelint-config-standard": "^37.0.0"
+		"@types/luxon": "^3.6.2",
+		"globals": "16.0.0",
+		"prettier": "^3.5.3"
 	},
 	"peerDependencies": {
-		"typescript": "^5.7.3"
+		"typescript": "^5.8.2"
 	},
 	"dependencies": {
 		"ejs": "^3.1.10",
-		"exiftool-vendored": "^29.2.0",
-		"fast-jwt": "^5.0.5",
+		"exiftool-vendored": "^29.3.0",
+		"fast-jwt": "6.0.1",
 		"fluent-ffmpeg": "^2.1.3",
 		"image-thumbnail": "^1.0.17",
-		"luxon": "^3.5.0",
+		"luxon": "^3.6.1",
 		"redis": "^4.7.0"
 	}
 }

@@ -1,6 +1,6 @@
+import { resolve } from "path";
 import { dataType } from "@config/environment";
 import { s3, sql } from "bun";
-import { resolve } from "path";
 
 import { logger } from "@/helpers/logger";
 import { sessionManager } from "@/helpers/sessions";
@@ -21,9 +21,7 @@ async function deleteAvatar(
 
 		try {
 			if (dataType.type === "local" && dataType.path) {
-				await Bun.file(
-					resolve(dataType.path, "avatars", fileName),
-				).unlink();
+				await Bun.file(resolve(dataType.path, "avatars", fileName)).unlink();
 			} else {
 				await s3.delete(`/avatars/${fileName}`);
 			}

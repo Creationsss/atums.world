@@ -1,6 +1,6 @@
+import { resolve } from "path";
 import { dataType } from "@config/environment";
 import { type BunFile, type ReservedSQL, sql } from "bun";
-import { resolve } from "path";
 
 import { isUUID, nameWithoutExtension } from "@/helpers/char";
 import { logger } from "@/helpers/logger";
@@ -139,9 +139,7 @@ async function handler(request: ExtendedRequest): Promise<Response> {
 		} else {
 			path = resolve(
 				dataType.path,
-				`${fileData.id}${
-					fileData.extension ? `.${fileData.extension}` : ""
-				}`,
+				`${fileData.id}${fileData.extension ? `.${fileData.extension}` : ""}`,
 			);
 		}
 	} else {
@@ -157,9 +155,7 @@ async function handler(request: ExtendedRequest): Promise<Response> {
 
 		return new Response(bunStream, {
 			headers: {
-				"Content-Type": shouldShowThumbnail
-					? "image/jpeg"
-					: fileData.mime_type,
+				"Content-Type": shouldShowThumbnail ? "image/jpeg" : fileData.mime_type,
 				"Content-Disposition":
 					downloadFile === "true" || downloadFile === "1"
 						? `attachment; filename="${fileData.original_name || fileData.name}"`

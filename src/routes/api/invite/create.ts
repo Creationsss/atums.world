@@ -67,9 +67,7 @@ async function handler(
 		);
 	}
 
-	const expirationDate: string | null = expires
-		? getNewTimeUTC(expires)
-		: null;
+	const expirationDate: string | null = expires ? getNewTimeUTC(expires) : null;
 	const maxUses: number = Number(max_uses) || 1;
 	const inviteRole: string = role || "user";
 

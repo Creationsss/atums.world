@@ -1,6 +1,6 @@
-import { dataType } from "@config/environment";
-import { s3, sql, type SQLQuery } from "bun";
 import { resolve } from "path";
+import { dataType } from "@config/environment";
+import { type SQLQuery, s3, sql } from "bun";
 
 import { isUUID } from "@/helpers/char";
 import { logger } from "@/helpers/logger";
@@ -134,26 +134,14 @@ async function handler(
 
 	try {
 		if (file && !(typeof file === "string" && file.length === 0)) {
-			await processFile(
-				request,
-				file,
-				isAdmin,
-				failedFiles,
-				successfulFiles,
-			);
+			await processFile(request, file, isAdmin, failedFiles, successfulFiles);
 		} else if (files) {
 			files = Array.isArray(files)
 				? files
 				: files.split(/[, ]+/).filter(Boolean);
 
 			for (const file of files) {
-				await processFile(
-					request,
-					file,
-					isAdmin,
-					failedFiles,
-					successfulFiles,
-				);
+				await processFile(request, file, isAdmin, failedFiles, successfulFiles);
 			}
 		}
 	} catch (error) {

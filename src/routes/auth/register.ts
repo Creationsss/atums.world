@@ -18,8 +18,7 @@ async function handler(request: ExtendedRequest): Promise<Response> {
 		const [firstUser] = await sql`SELECT COUNT(*) FROM users`;
 
 		const instanceName: string =
-			(await getSetting("instance_name", reservation)) ||
-			"Unnamed Instance";
+			(await getSetting("instance_name", reservation)) || "Unnamed Instance";
 		const requiresInvite: boolean =
 			(await getSetting("enable_invitations", reservation)) === "true" &&
 			firstUser.count !== "0";

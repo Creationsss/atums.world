@@ -1,5 +1,5 @@
-import { renderFile } from "ejs";
 import { resolve } from "path";
+import { renderFile } from "ejs";
 
 export async function renderEjsTemplate(
 	viewName: string | string[],

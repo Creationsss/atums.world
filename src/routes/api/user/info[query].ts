@@ -28,7 +28,7 @@ async function handler(request: ExtendedRequest): Promise<Response> {
 	}
 
 	let user: GetUser | null = null;
-	let isSelf: boolean = false;
+	let isSelf = false;
 	const isId: boolean = isUUID(query);
 	const normalized: string = isId ? query : query.normalize("NFC");
 	const isAdmin: boolean = request.session

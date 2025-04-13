@@ -3,7 +3,7 @@ import {
 	isValidPassword,
 	isValidUsername,
 } from "@config/sql/users";
-import { password as bunPassword, type ReservedSQL, sql } from "bun";
+import { type ReservedSQL, password as bunPassword, sql } from "bun";
 
 import { logger } from "@/helpers/logger";
 import { sessionManager } from "@/helpers/sessions";
@@ -61,13 +61,9 @@ async function handler(
 	const errors: string[] = [];
 
 	const validations: UserValidation[] = [
-		username
-			? { check: isValidUsername(username), field: "Username" }
-			: null,
+		username ? { check: isValidUsername(username), field: "Username" } : null,
 		email ? { check: isValidEmail(email), field: "Email" } : null,
-		password
-			? { check: isValidPassword(password), field: "Password" }
-			: null,
+		password ? { check: isValidPassword(password), field: "Password" } : null,
 	].filter(Boolean) as UserValidation[];
 
 	validations.forEach(({ check }: UserValidation): void => {
