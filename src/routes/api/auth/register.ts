@@ -92,7 +92,10 @@ async function handler(
 		}
 
 		roles.push("user");
-		if (firstUser) roles.push("admin");
+		if (firstUser) {
+			roles.push("admin");
+			roles.push("superadmin");
+		}
 
 		const [result] = await reservation`
 				SELECT
