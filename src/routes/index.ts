@@ -1,4 +1,4 @@
-import { renderEjsTemplate } from "@lib/ejs";
+import { frontendUrl } from "@config";
 
 const routeDef: RouteDef = {
 	method: "GET",
@@ -7,15 +7,14 @@ const routeDef: RouteDef = {
 };
 
 async function handler(request: ExtendedRequest): Promise<Response> {
-	if (!request.session) {
-		return Response.redirect("/auth/login");
-	}
-
-	const ejsTemplateData: EjsTemplateData = {
-		title: "Hello, World!",
-	};
-
-	return await renderEjsTemplate("index", ejsTemplateData);
+	return Response.json(
+		{
+			success: true,
+			code: 200,
+			message: `This is the api for ${frontendUrl}`,
+		},
+		{ status: 200 },
+	);
 }
 
 export { handler, routeDef };

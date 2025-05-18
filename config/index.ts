@@ -18,12 +18,15 @@ const dataType: { type: string; path: string | undefined } = {
 			: undefined,
 };
 
+const frontendUrl: string = process.env.FRONTEND_URL || "http://localhost:8080";
+
 function verifyRequiredVariables(): void {
 	const requiredVariables = [
 		"HOST",
 		"PORT",
 
 		"FQDN",
+		"FRONTEND_URL",
 
 		"PGHOST",
 		"PGPORT",
@@ -58,4 +61,4 @@ function verifyRequiredVariables(): void {
 export * from "@config/jwt";
 export * from "@config/redis";
 
-export { environment, dataType, verifyRequiredVariables };
+export { environment, dataType, verifyRequiredVariables, frontendUrl };
