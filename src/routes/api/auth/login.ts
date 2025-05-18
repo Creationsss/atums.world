@@ -2,11 +2,11 @@ import {
 	isValidEmail,
 	isValidPassword,
 	isValidUsername,
-} from "@config/sql/users";
+} from "@lib/validators";
 import { type ReservedSQL, password as bunPassword, sql } from "bun";
 
-import { logger } from "@/helpers/logger";
-import { sessionManager } from "@/helpers/sessions";
+import { sessionManager } from "@/lib/jwt";
+import { logger } from "@creations.works/logger";
 
 const routeDef: RouteDef = {
 	method: "POST",

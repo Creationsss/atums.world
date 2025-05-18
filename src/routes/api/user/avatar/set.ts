@@ -1,12 +1,12 @@
 import { resolve } from "node:path";
-import { dataType } from "@config/environment";
-import { isValidTypeOrExtension } from "@config/sql/avatars";
+import { dataType } from "@config";
 import { getSetting } from "@config/sql/settings";
+import { isValidTypeOrExtension } from "@lib/validators";
 import { s3, sql } from "bun";
 
-import { getBaseUrl, getExtension } from "@/helpers/char";
-import { logger } from "@/helpers/logger";
-import { sessionManager } from "@/helpers/sessions";
+import { sessionManager } from "@/lib/jwt";
+import { logger } from "@creations.works/logger";
+import { getBaseUrl, getExtension } from "@lib/char";
 
 async function processFile(
 	file: File,

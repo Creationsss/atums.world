@@ -1,7 +1,7 @@
 import { randomUUIDv7, sql } from "bun";
 
-import { logger } from "@/helpers/logger";
-import { redis } from "@/helpers/redis";
+import { logger } from "@creations.works/logger";
+import { redis } from "bun";
 
 const routeDef: RouteDef = {
 	method: "GET",
@@ -51,11 +51,9 @@ async function handler(request: ExtendedRequest): Promise<Response> {
 		}
 
 		const code: string = randomUUIDv7();
-		await redis.getInstance().set(
-			"JSON",
+		await redis.set(
 			`email:verify:${code}`,
-			{ user_id: request.session.id },
-			60 * 60 * 2, // 2 hours
+			JSON.stringify({ user_id: request.session.id }),
 		);
 
 		// TODO: Send email when email service is implemented

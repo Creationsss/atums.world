@@ -1,5 +1,5 @@
 import { resolve } from "node:path";
-import { dataType } from "@config/environment";
+import { dataType } from "@config";
 import { getSetting } from "@config/sql/settings";
 import {
 	type SQLQuery,
@@ -11,6 +11,7 @@ import {
 import { exiftool } from "exiftool-vendored";
 import { DateTime } from "luxon";
 
+import { logger } from "@creations.works/logger";
 import {
 	generateRandomString,
 	getBaseUrl,
@@ -19,8 +20,7 @@ import {
 	nameWithoutExtension,
 	supportsExif,
 	supportsThumbnail,
-} from "@/helpers/char";
-import { logger } from "@/helpers/logger";
+} from "@lib/char";
 
 const routeDef: RouteDef = {
 	method: "POST",
@@ -439,7 +439,7 @@ async function handler(request: ExtendedRequest): Promise<Response> {
 		filesThatSupportThumbnails.length > 0
 	) {
 		try {
-			const worker: Worker = new Worker("./src/helpers/workers/thumbnails.ts", {
+			const worker: Worker = new Worker("./src/helpers/workers/thumbnails", {
 				type: "module",
 			});
 			worker.postMessage({

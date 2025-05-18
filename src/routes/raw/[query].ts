@@ -1,9 +1,9 @@
 import { resolve } from "node:path";
-import { dataType } from "@config/environment";
+import { dataType } from "@config";
 import { type BunFile, type ReservedSQL, sql } from "bun";
 
-import { isUUID, nameWithoutExtension } from "@/helpers/char";
-import { logger } from "@/helpers/logger";
+import { logger } from "@creations.works/logger";
+import { isUUID, nameWithoutExtension } from "@lib/char";
 
 const routeDef: RouteDef = {
 	method: "GET",

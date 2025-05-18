@@ -1,4 +1,4 @@
-import { logger } from "@helpers/logger";
+import { logger } from "@creations.works/logger";
 import { type ReservedSQL, sql } from "bun";
 
 export const order: number = 6;
@@ -31,14 +31,4 @@ export async function createTable(reservation?: ReservedSQL): Promise<void> {
 			activeReservation.release();
 		}
 	}
-}
-
-export function isValidTypeOrExtension(
-	type: string,
-	extension: string,
-): boolean {
-	return (
-		["image/jpeg", "image/png", "image/gif", "image/webp"].includes(type) &&
-		["jpeg", "jpg", "png", "gif", "webp"].includes(extension)
-	);
 }

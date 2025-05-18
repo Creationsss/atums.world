@@ -1,6 +1,6 @@
 import { join, resolve } from "node:path";
-import { dataType } from "@config/environment.ts";
-import { logger } from "@helpers/logger.ts";
+import { dataType } from "@config";
+import { logger } from "@creations.works/logger";
 import { type BunFile, s3, sql } from "bun";
 import ffmpeg from "fluent-ffmpeg";
 import imageThumbnail from "image-thumbnail";
@@ -186,5 +186,5 @@ self.onmessage = async (event: MessageEvent): Promise<void> => {
 };
 
 self.onerror = (error: ErrorEvent): void => {
-	logger.error(error);
+	logger.error(["An error occurred in the thumbnail worker:", error.message]);
 };

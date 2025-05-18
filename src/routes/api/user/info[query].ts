@@ -1,8 +1,8 @@
-import { isValidUsername } from "@config/sql/users";
+import { isValidUsername } from "@lib/validators";
 import { type ReservedSQL, sql } from "bun";
 
-import { isUUID } from "@/helpers/char";
-import { logger } from "@/helpers/logger";
+import { logger } from "@creations.works/logger";
+import { isUUID } from "@lib/char";
 
 const routeDef: RouteDef = {
 	method: "GET",

@@ -1,13 +1,11 @@
 import { existsSync, mkdirSync } from "node:fs";
 import { readdir } from "node:fs/promises";
 import { resolve } from "node:path";
-import { dataType } from "@config/environment";
-import { logger } from "@helpers/logger";
-import { type ReservedSQL, s3, sql } from "bun";
+import { dataType, verifyRequiredVariables } from "@config";
+import { logger } from "@creations.works/logger";
+import { type ReservedSQL, redis, s3, sql } from "bun";
 
 import { serverHandler } from "@/server";
-
-import { redis } from "./helpers/redis";
 
 async function initializeDatabase(): Promise<void> {
 	const sqlDir: string = resolve("config", "sql");
@@ -38,6 +36,8 @@ async function initializeDatabase(): Promise<void> {
 }
 
 async function main(): Promise<void> {
+	verifyRequiredVariables();
+
 	try {
 		await sql`SELECT 1;`;
 
@@ -50,6 +50,19 @@ async function main(): Promise<void> {
 			"Could not establish a connection to PostgreSQL:",
 			error as Error,
 		]);
+		process.exit(1);
+	}
+
+	try {
+		await redis.connect();
+
+		const url = new URL(process.env.REDIS_URL || "redis://localhost:6379");
+		const host = url.hostname;
+		const port = url.port || "6379";
+
+		logger.info(["Connected to Redis on", `${host}:${port}`]);
+	} catch (error) {
+		logger.error(["Redis connection failed:", error as Error]);
 		process.exit(1);
 	}
 
@@ -82,7 +95,8 @@ async function main(): Promise<void> {
 		}
 	}
 
-	await redis.initialize();
+	logger.space();
+
 	serverHandler.initialize();
 	await initializeDatabase();
 }

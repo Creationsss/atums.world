@@ -1,9 +1,8 @@
-import { sql } from "bun";
+import { redis, sql } from "bun";
 
-import { isUUID } from "@/helpers/char";
-import { logger } from "@/helpers/logger";
-import { redis } from "@/helpers/redis";
-import { sessionManager } from "@/helpers/sessions";
+import { sessionManager } from "@/lib/jwt";
+import { logger } from "@creations.works/logger";
+import { isUUID } from "@lib/char";
 
 const routeDef: RouteDef = {
 	method: "POST",
@@ -37,11 +36,9 @@ async function handler(request: ExtendedRequest): Promise<Response> {
 	}
 
 	try {
-		const verificationData: unknown = await redis
-			.getInstance()
-			.get("JSON", `email:verify:${code}`);
+		const raw: string | null = await redis.get(`email:verify:${code}`);
 
-		if (!verificationData) {
+		if (!raw) {
 			return Response.json(
 				{
 					success: false,
@@ -52,11 +49,24 @@ async function handler(request: ExtendedRequest): Promise<Response> {
 			);
 		}
 
-		const { user_id: userId } = verificationData as {
-			user_id: string;
-		};
+		let verificationData: { user_id: string };
 
-		await redis.getInstance().delete("JSON", `email:verify:${code}`);
+		try {
+			verificationData = JSON.parse(raw);
+		} catch {
+			return Response.json(
+				{
+					success: false,
+					code: 400,
+					error: "Malformed verification data",
+				},
+				{ status: 500 },
+			);
+		}
+
+		const { user_id: userId } = verificationData;
+
+		await redis.del(`email:verify:${code}`);
 		await sql`
 			UPDATE users
 			SET email_verified = true

@@ -1,4 +1,4 @@
-import { parseArgs } from "@helpers/char";
+import { parseArgs } from "@lib/char";
 import { type ReservedSQL, sql } from "bun";
 
 (async (): Promise<void> => {

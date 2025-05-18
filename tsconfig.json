@@ -3,9 +3,10 @@
 		"baseUrl": "./",
 		"paths": {
 			"@/*": ["src/*"],
+			"@config": ["config/index.ts"],
 			"@config/*": ["config/*"],
 			"@types/*": ["types/*"],
-			"@helpers/*": ["src/helpers/*"]
+			"@lib/*": ["src/lib/*"]
 		},
 		"typeRoots": ["./src/types", "./node_modules/@types"],
 		// Enable latest features

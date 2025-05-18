@@ -1,7 +1,7 @@
-import { isValidInvite } from "@config/sql/users";
+import { isValidInvite } from "@lib/validators";
 import { type ReservedSQL, sql } from "bun";
 
-import { logger } from "@/helpers/logger";
+import { logger } from "@creations.works/logger";
 
 const routeDef: RouteDef = {
 	method: "DELETE",

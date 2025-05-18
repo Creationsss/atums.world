@@ -200,6 +200,12 @@ export function supportsThumbnail(mimeType: string): boolean {
 	return /^(image\/(?!svg+xml)|video\/)/i.test(mimeType);
 }
 
+export function normalizeFqdn(value?: string): string | null {
+	if (!value) return null;
+	if (!/^https?:\/\//.test(value)) return `https://${value}`;
+	return value;
+}
+
 // Commands
 export function parseArgs(): Record<string, string | boolean> {
 	const args: string[] = process.argv.slice(2);

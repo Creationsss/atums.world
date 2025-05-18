@@ -1,5 +1,5 @@
-import { isUUID } from "@helpers/char";
-import { logger } from "@helpers/logger";
+import { logger } from "@creations.works/logger";
+import { isUUID } from "@lib/char";
 import { type ReservedSQL, sql } from "bun";
 
 export async function authByToken(

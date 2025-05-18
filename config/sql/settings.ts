@@ -1,4 +1,4 @@
-import { logger } from "@helpers/logger";
+import { logger } from "@creations.works/logger";
 import { type ReservedSQL, sql } from "bun";
 
 export const order: number = 2;
@@ -92,8 +92,6 @@ export async function createTable(reservation?: ReservedSQL): Promise<void> {
 		}
 	}
 }
-
-// * Validation functions
 
 export async function getSetting(
 	key: string,

@@ -1,10 +1,10 @@
 import { resolve } from "node:path";
-import { dataType } from "@config/environment";
-import { isValidUsername } from "@config/sql/users";
+import { dataType } from "@config";
+import { isValidUsername } from "@lib/validators";
 import { type BunFile, type ReservedSQL, sql } from "bun";
 
-import { getBaseUrl, isUUID, nameWithoutExtension } from "@/helpers/char";
-import { logger } from "@/helpers/logger";
+import { logger } from "@creations.works/logger";
+import { getBaseUrl, isUUID, nameWithoutExtension } from "@lib/char";
 
 const routeDef: RouteDef = {
 	method: "GET",

@@ -1,9 +1,9 @@
 import { resolve } from "node:path";
-import { dataType } from "@config/environment";
+import { dataType } from "@config";
 import { type SQLQuery, s3, sql } from "bun";
 
-import { isUUID } from "@/helpers/char";
-import { logger } from "@/helpers/logger";
+import { logger } from "@creations.works/logger";
+import { isUUID } from "@lib/char";
 
 const routeDef: RouteDef = {
 	method: "DELETE",

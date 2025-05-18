@@ -1,6 +1,6 @@
 import { setSetting } from "@config/sql/settings";
 
-import { logger } from "@/helpers/logger";
+import { logger } from "@creations.works/logger";
 
 const routeDef: RouteDef = {
 	method: "POST",

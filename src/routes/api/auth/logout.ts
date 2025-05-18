@@ -1,4 +1,4 @@
-import { sessionManager } from "@/helpers/sessions";
+import { sessionManager } from "@/lib/jwt";
 
 const routeDef: RouteDef = {
 	method: "POST",

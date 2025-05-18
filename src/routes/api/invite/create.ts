@@ -1,8 +1,8 @@
 import { getSetting } from "@config/sql/settings";
 import { sql } from "bun";
 
-import { generateRandomString, getNewTimeUTC } from "@/helpers/char";
-import { logger } from "@/helpers/logger";
+import { logger } from "@creations.works/logger";
+import { generateRandomString, getNewTimeUTC } from "@lib/char";
 
 const routeDef: RouteDef = {
 	method: "POST",

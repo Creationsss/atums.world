@@ -17,10 +17,19 @@
 	"organizeImports": {
 		"enabled": true
 	},
+	"css": {
+		"formatter": {
+			"indentStyle": "tab",
+			"lineEnding": "lf"
+		}
+	},
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"recommended": true
+			"recommended": true,
+			"correctness": {
+				"noUnusedImports": "error"
+			}
 		}
 	},
 	"javascript": {

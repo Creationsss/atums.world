@@ -1,7 +1,7 @@
 import { type ReservedSQL, type SQLQuery, sql } from "bun";
 
-import { isUUID } from "@/helpers/char";
-import { logger } from "@/helpers/logger";
+import { logger } from "@creations.works/logger";
+import { isUUID } from "@lib/char";
 
 function isValidSort(sortBy: string): boolean {
 	const validSorts: string[] = [

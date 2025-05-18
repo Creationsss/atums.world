@@ -1,9 +1,9 @@
 import { resolve } from "node:path";
-import { dataType } from "@config/environment";
+import { dataType } from "@config";
 import { s3, sql } from "bun";
 
-import { logger } from "@/helpers/logger";
-import { sessionManager } from "@/helpers/sessions";
+import { sessionManager } from "@/lib/jwt";
+import { logger } from "@creations.works/logger";
 
 async function deleteAvatar(
 	request: ExtendedRequest,

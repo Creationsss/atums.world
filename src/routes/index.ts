@@ -1,4 +1,4 @@
-import { renderEjsTemplate } from "@helpers/ejs";
+import { renderEjsTemplate } from "@lib/ejs";
 
 const routeDef: RouteDef = {
 	method: "GET",
