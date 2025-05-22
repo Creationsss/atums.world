@@ -116,6 +116,19 @@ class ServerHandler {
 		request: Request,
 		server: BunServer,
 	): Promise<Response> {
+		if (request.method === "OPTIONS") {
+			return new Response(null, {
+				status: 204,
+				headers: {
+					"Access-Control-Allow-Origin": environment.frontendUrl,
+					"Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+					"Access-Control-Allow-Credentials": "true",
+					"Access-Control-Allow-Headers":
+						request.headers.get("Access-Control-Request-Headers") || "*",
+				},
+			});
+		}
+
 		const extendedRequest: ExtendedRequest = request as ExtendedRequest;
 		extendedRequest.startPerf = performance.now();
 
@@ -255,6 +268,22 @@ class ServerHandler {
 					error: "Not Found",
 				},
 				{ status: 404 },
+			);
+		}
+
+		if (response?.headers) {
+			response.headers.set(
+				"Access-Control-Allow-Origin",
+				environment.frontendUrl,
+			);
+			response.headers.set(
+				"Access-Control-Allow-Methods",
+				"GET, POST, PUT, DELETE, OPTIONS",
+			);
+			response.headers.set("Access-Control-Allow-Credentials", "true");
+			response.headers.set(
+				"Access-Control-Allow-Headers",
+				request.headers.get("Access-Control-Request-Headers") || "Content-Type",
 			);
 		}
 

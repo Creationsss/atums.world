@@ -8,6 +8,8 @@ const environment: Environment = {
 	development:
 		process.env.NODE_ENV === "development" || process.argv.includes("--dev"),
 	fqdn: normalizeFqdn(process.env.FQDN) || "http://localhost:8080",
+	frontendUrl:
+		normalizeFqdn(process.env.FRONTEND_URL) || "http://localhost:8080",
 };
 
 const dataType: { type: string; path: string | undefined } = {

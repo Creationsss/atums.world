@@ -3,6 +3,7 @@ type Environment = {
 	host: string;
 	development: boolean;
 	fqdn: string;
+	frontendUrl: string;
 };
 
 type UserValidation = {
